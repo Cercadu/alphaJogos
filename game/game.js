@@ -9,6 +9,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const charType = sessionStorage.getItem('alphadino_active_char') || 'raptor';
   const selectedLevelNum = parseInt(sessionStorage.getItem('alphadino_active_level') || '1', 10);
 
+  // DDA: Load consecutive deaths on this level
+  const levelDeathsKey = `alphadino_deaths_level_${selectedLevelNum}`;
+  let levelDeaths = parseInt(localStorage.getItem(levelDeathsKey) || '0', 10);
+
+
   // HUD Elements
   const hudPlayerName = document.getElementById('hud-player-name');
   const hudCharEmoji = document.getElementById('hud-char-emoji');
@@ -154,10 +159,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  assets.dinos.onload = checkAssetsLoaded;
-  assets.enemies.onload = checkAssetsLoaded;
+  assets.dinos.onload = () => {
+    dinoBounds = scanDinoBounds(assets.dinos);
+    checkAssetsLoaded();
+  };
+  assets.enemies.onload = () => {
+    enemyBounds = scanEnemyBounds(assets.enemies);
+    checkAssetsLoaded();
+  };
   assets.tiles.onload = checkAssetsLoaded;
   assets.bg.onload = checkAssetsLoaded;
+
 
   // ----------------------------------------------------
   // LEVEL GRID CONFIGURATION (12 rows high, 120 cols wide)
@@ -187,10 +199,12 @@ document.addEventListener('DOMContentLoaded', () => {
       ctx.strokeStyle = '#4a2810';
       ctx.lineWidth = 4;
       ctx.textAlign = 'center';
-      ctx.strokeText(this.text, this.x - cameraX, this.y);
-      ctx.fillText(this.text, this.x - cameraX, this.y);
+      const screen = worldToScreen(this.x, this.y);
+      ctx.strokeText(this.text, screen.x, screen.y);
+      ctx.fillText(this.text, screen.x, screen.y);
       ctx.restore();
     }
+
   }
 
   let floatingTexts = [];
@@ -292,6 +306,194 @@ document.addEventListener('DOMContentLoaded', () => {
   let shieldCooldownTimer = 0;
   
   let cameraX = 0;
+  let cameraY = 0;
+
+  // Normalization Layer: Convert World Coordinates to Screen Coordinates
+  function worldToScreen(worldX, worldY) {
+    return {
+      x: worldX - cameraX,
+      y: worldY - cameraY
+    };
+  }
+
+  // Pre-calculated boundaries for spritesheets
+  let dinoBounds = null;
+  let enemyBounds = null;
+
+  function scanDinoBounds(image) {
+    const cols = 5;
+    const rows = 5;
+    const frameWidth = image.width / cols;
+    const frameHeight = image.height / rows;
+    const canvas = document.createElement('canvas');
+    canvas.width = frameWidth;
+    canvas.height = frameHeight;
+    const tempCtx = canvas.getContext('2d');
+    const bounds = [];
+    
+    for (let r = 0; r < rows; r++) {
+      let globalMinX = frameWidth;
+      let globalMaxX = 0;
+      let globalMinY = frameHeight;
+      let globalMaxY = 0;
+      let foundAny = false;
+      
+      for (let c = 0; c < cols; c++) {
+        tempCtx.clearRect(0, 0, frameWidth, frameHeight);
+        tempCtx.drawImage(image, c * frameWidth, r * frameHeight, frameWidth, frameHeight, 0, 0, frameWidth, frameHeight);
+        
+        let imgData;
+        try {
+          imgData = tempCtx.getImageData(0, 0, frameWidth, frameHeight);
+        } catch (e) {
+          foundAny = false;
+          break;
+        }
+        
+        for (let y = 0; y < frameHeight; y++) {
+          for (let x = 0; x < frameWidth; x++) {
+            const idx = (y * frameWidth + x) * 4;
+            const alpha = imgData.data[idx + 3];
+            if (alpha > 10) {
+              if (x < globalMinX) globalMinX = x;
+              if (x > globalMaxX) globalMaxX = x;
+              if (y < globalMinY) globalMinY = y;
+              if (y > globalMaxY) globalMaxY = y;
+              foundAny = true;
+            }
+          }
+        }
+      }
+      
+      if (!foundAny) {
+        bounds[r] = { minX: 0, maxX: frameWidth - 1, minY: 0, maxY: frameHeight - 1, sWidth: frameWidth, sHeight: frameHeight };
+      } else {
+        bounds[r] = {
+          minX: globalMinX, maxX: globalMaxX, minY: globalMinY, maxY: globalMaxY,
+          sWidth: globalMaxX - globalMinX + 1, sHeight: globalMaxY - globalMinY + 1
+        };
+      }
+    }
+    return bounds;
+  }
+
+  function scanEnemyBounds(image) {
+    const cols = 5;
+    const rows = 2;
+    const frameWidth = image.width / cols;
+    const frameHeight = image.height / rows;
+    const canvas = document.createElement('canvas');
+    canvas.width = frameWidth;
+    canvas.height = frameHeight;
+    const tempCtx = canvas.getContext('2d');
+    const bounds = [];
+    
+    for (let c = 0; c < cols; c++) {
+      let globalMinX = frameWidth;
+      let globalMaxX = 0;
+      let globalMinY = frameHeight;
+      let globalMaxY = 0;
+      let foundAny = false;
+      
+      for (let r = 0; r < rows; r++) {
+        tempCtx.clearRect(0, 0, frameWidth, frameHeight);
+        tempCtx.drawImage(image, c * frameWidth, r * frameHeight, frameWidth, frameHeight, 0, 0, frameWidth, frameHeight);
+        
+        let imgData;
+        try {
+          imgData = tempCtx.getImageData(0, 0, frameWidth, frameHeight);
+        } catch (e) {
+          foundAny = false;
+          break;
+        }
+        
+        for (let y = 0; y < frameHeight; y++) {
+          for (let x = 0; x < frameWidth; x++) {
+            const idx = (y * frameWidth + x) * 4;
+            const alpha = imgData.data[idx + 3];
+            if (alpha > 10) {
+              if (x < globalMinX) globalMinX = x;
+              if (x > globalMaxX) globalMaxX = x;
+              if (y < globalMinY) globalMinY = y;
+              if (y > globalMaxY) globalMaxY = y;
+              foundAny = true;
+            }
+          }
+        }
+      }
+      
+      if (!foundAny) {
+        bounds[c] = { minX: 0, maxX: frameWidth - 1, minY: 0, maxY: frameHeight - 1, sWidth: frameWidth, sHeight: frameHeight };
+      } else {
+        bounds[c] = {
+          minX: globalMinX, maxX: globalMaxX, minY: globalMinY, maxY: globalMaxY,
+          sWidth: globalMaxX - globalMinX + 1, sHeight: globalMaxY - globalMinY + 1
+        };
+      }
+    }
+    return bounds;
+  }
+
+  // Unified rendering layer aligning sprite center of mass with collision hitbox
+  function drawSprite(ctx, image, type, rowIdx, colIdx, screenX, screenY, destWidth, destHeight, facingRight, rotation = 0, opacity = 1, isEnemy = false, isSquashed = false) {
+    ctx.save();
+    ctx.globalAlpha = opacity;
+
+    let bounds = null;
+    let frameWidth = 0;
+    let frameHeight = 0;
+    let sX, sY, sW, sH;
+
+    if (!isEnemy) {
+      frameWidth = image.width / 5;
+      frameHeight = image.height / 5;
+      bounds = dinoBounds ? dinoBounds[rowIdx] : null;
+    } else {
+      frameWidth = image.width / 5;
+      frameHeight = image.height / 2;
+      bounds = enemyBounds ? enemyBounds[colIdx] : null;
+    }
+
+    if (bounds) {
+      sX = colIdx * frameWidth + bounds.minX;
+      sY = rowIdx * frameHeight + bounds.minY;
+      sW = bounds.sWidth;
+      sH = bounds.sHeight;
+    } else {
+      frameWidth = image.width / 5;
+      frameHeight = isEnemy ? (image.height / 2) : (image.height / 5);
+      sW = frameWidth;
+      sH = frameHeight;
+      sX = colIdx * frameWidth;
+      sY = rowIdx * frameHeight;
+    }
+
+    let scale = destHeight / sH;
+    let renderW = sW * scale;
+    let renderH = destHeight;
+
+    if (isSquashed) {
+      ctx.translate(screenX + destWidth / 2, screenY + destHeight);
+      ctx.scale(1.3, 0.25);
+      ctx.translate(0, -renderH / 2);
+      if (!facingRight) ctx.scale(-1, 1);
+      ctx.drawImage(image, sX, sY, sW, sH, -renderW / 2, -renderH / 2, renderW, renderH);
+    } else {
+      ctx.translate(screenX + destWidth / 2, screenY + destHeight / 2);
+      if (rotation !== 0) {
+        ctx.rotate(rotation);
+      }
+      if (!facingRight) {
+        ctx.scale(-1, 1);
+      }
+      let drawX = -renderW / 2;
+      let drawY = destHeight / 2 - renderH;
+      ctx.drawImage(image, sX, sY, sW, sH, drawX, drawY, renderW, renderH);
+    }
+
+    ctx.restore();
+  }
+
 
   // Entity Lists
   const collidables = [];
@@ -352,11 +554,39 @@ document.addEventListener('DOMContentLoaded', () => {
       
       this.facingRight = true;
       this.walkFrameCycle = 0;
+      
+      this.timeSinceLastOnGround = 0;
+      this.jumpBufferTimer = 0;
+      this.hasJumpedThisLeap = false;
     }
+
 
     update(dt) {
       if (this.shootCooldown > 0) this.shootCooldown -= dt;
       if (this.dashCooldown > 0) this.dashCooldown -= dt;
+
+      // Update coyote and jump buffer timers
+      if (this.onGround) {
+        this.timeSinceLastOnGround = 0;
+        this.hasJumpedThisLeap = false;
+      } else {
+        this.timeSinceLastOnGround += dt;
+      }
+
+      if (this.jumpBufferTimer > 0) {
+        this.jumpBufferTimer -= dt;
+      }
+
+      // Check jump buffer on landing
+      if (this.onGround && this.jumpBufferTimer > 0) {
+        this.vy = this.jumpPower;
+        this.onGround = false;
+        this.jumpBufferTimer = 0;
+        this.hasJumpedThisLeap = true;
+        sounds.jump();
+        triggerVibrate(20);
+      }
+
 
       // Shield recharge (T-Rex)
       if (charType === 'trex' && !this.hasShield) {
@@ -411,11 +641,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Jump & Glide (Ptera)
       if (keys.jump && !levelComplete && gameState === 'PLAYING') {
-        if (this.onGround) {
+        const canCoyoteJump = !this.onGround && (this.timeSinceLastOnGround < 100) && !this.hasJumpedThisLeap;
+        if (this.onGround || canCoyoteJump) {
           this.vy = this.jumpPower;
           this.onGround = false;
           this.jumpHoldTimer = 0;
           this.isGliding = false;
+          this.hasJumpedThisLeap = true;
+          this.jumpBufferTimer = 0; // consumed
           sounds.jump();
           triggerVibrate(20);
         } else {
@@ -434,6 +667,7 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         this.isGliding = false;
       }
+
 
       // Gravity
       if (!this.onGround && !this.isGliding && !this.isDashing) {
@@ -555,15 +789,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     draw() {
-      ctx.save();
-
-      // Flip character horizontally if facing left
-      let drawX = this.x - cameraX;
-      let drawY = this.y;
-      
-      const frameWidth = assets.dinos.width / 5;
-      const frameHeight = assets.dinos.height / 5;
-
       // Calculate walking frame cycle (0 to 4)
       let animFrame = 0;
       if (Math.abs(this.vx) > 0.1 && this.onGround) {
@@ -576,13 +801,10 @@ document.addEventListener('DOMContentLoaded', () => {
         walkRotation = Math.sin(this.walkFrameCycle) * 0.08;
       }
 
-      ctx.translate(drawX + this.width/2, drawY + this.height/2);
-      ctx.rotate(walkRotation);
+      // Calculate screen coordinates using normalization layer
+      const screenPos = worldToScreen(this.x, this.y);
 
-      if (!this.facingRight) {
-        ctx.scale(-1, 1);
-      }
-
+      ctx.save();
       // Star rainbow color overlay filter
       if (this.powerup === 'star') {
         ctx.shadowBlur = 15;
@@ -593,15 +815,23 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.shadowColor = '#ff5500';
       }
 
-      ctx.drawImage(
+      // Draw the player dino using drawSprite, which handles scale, horizontal centering, bottom-alignment, and flipping!
+      drawSprite(
+        ctx,
         assets.dinos,
-        animFrame * frameWidth, activeDinoIdx * frameHeight, frameWidth, frameHeight, // Slice
-        -this.width/2, -this.height/2, this.width, this.height // Draw
+        'dino',
+        activeDinoIdx,
+        animFrame,
+        screenPos.x,
+        screenPos.y,
+        this.width,
+        this.height,
+        this.facingRight,
+        walkRotation
       );
-
       ctx.restore();
 
-      // Draw active shield bubble
+      // Draw active shield bubble (centered on physical hitbox)
       if (this.hasShield) {
         ctx.save();
         ctx.strokeStyle = '#00f0ff';
@@ -609,22 +839,25 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.shadowBlur = 15;
         ctx.shadowColor = '#00f0ff';
         ctx.beginPath();
-        ctx.arc(this.x + this.width/2 - cameraX, this.y + this.height/2, Math.max(this.width, this.height)*0.7, 0, Math.PI*2);
+        const center = worldToScreen(this.x + this.width / 2, this.y + this.height / 2);
+        ctx.arc(center.x, center.y, Math.max(this.width, this.height) * 0.7, 0, Math.PI * 2);
         ctx.stroke();
         ctx.restore();
       }
 
-      // Draw magnet ring
+      // Draw magnet ring (centered on physical hitbox)
       if (this.powerup === 'magnet' || charType === 'stego') {
         ctx.save();
         ctx.strokeStyle = 'rgba(255, 234, 0, 0.2)';
         ctx.lineWidth = 1.5;
         ctx.beginPath();
-        ctx.arc(this.x + this.width/2 - cameraX, this.y + this.height/2, (this.powerup === 'magnet' ? 140 : 60), 0, Math.PI*2);
+        const center = worldToScreen(this.x + this.width / 2, this.y + this.height / 2);
+        ctx.arc(center.x, center.y, (this.powerup === 'magnet' ? 140 : 60), 0, Math.PI * 2);
         ctx.stroke();
         ctx.restore();
       }
     }
+
   }
 
   let player = new Player();
@@ -691,10 +924,11 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.shadowColor = '#ffea00';
       }
 
+      const screen = worldToScreen(this.x, this.y - this.hitOffset);
       ctx.drawImage(
         assets.tiles,
         renderIdx * frameWidth, tileRow * frameHeight, frameWidth, frameHeight,
-        this.x - cameraX, this.y - this.hitOffset, this.width, this.height
+        screen.x, screen.y, this.width, this.height
       );
       ctx.restore();
     }
@@ -731,10 +965,11 @@ document.addEventListener('DOMContentLoaded', () => {
       ctx.shadowBlur = 6;
       ctx.shadowColor = '#ffea00';
 
+      const screen = worldToScreen(this.x, this.y);
       ctx.drawImage(
         assets.tiles,
         3 * frameWidth, tileRow * frameHeight, frameWidth, frameHeight, // index 3 is Coin
-        this.x - cameraX, this.y, this.width, this.height
+        screen.x, screen.y, this.width, this.height
       );
       ctx.restore();
     }
@@ -763,14 +998,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Draw the flagpole repeating 6 times vertically
       for (let i = 0; i < 6; i++) {
+        const screen = worldToScreen(this.x, this.y + (i * BLOCK_SIZE));
         ctx.drawImage(
           assets.tiles,
           5 * frameWidth, tileRow * frameHeight, frameWidth, frameHeight, // index 5 is Flagpole
-          this.x - cameraX, this.y + (i * BLOCK_SIZE), BLOCK_SIZE, BLOCK_SIZE
+          screen.x, screen.y, BLOCK_SIZE, BLOCK_SIZE
         );
       }
     }
   }
+
 
   // ----------------------------------------------------
   // ENEMY CLASS
@@ -821,7 +1058,10 @@ document.addEventListener('DOMContentLoaded', () => {
       else if (this.type === 'bowser') {
         // Boss fights fireballs
         this.shootTimer += dt;
-        if (this.shootTimer >= 2200 && Math.abs(player.x - this.x) < 550) {
+        // DDA: Add 500ms shooting delay per death, max 2000ms
+        const ddaDelay = Math.min(levelDeaths * 500, 2000);
+        const shootInterval = 2200 + ddaDelay;
+        if (this.shootTimer >= shootInterval && Math.abs(player.x - this.x) < 550) {
           this.shootTimer = 0;
           sounds.shoot();
           projectiles.push(new Projectile(this.x - 10, this.y + 20, -1, true));
@@ -833,10 +1073,24 @@ document.addEventListener('DOMContentLoaded', () => {
         // Goomba / Koopa walking
         this.x += this.speedX;
 
-        // Check horizontal boundary to bounce back
+        // Check horizontal boundary to bounce back (robust AABB intersection)
         let collided = false;
+        const myBox = {
+          left: this.x,
+          right: this.x + this.width,
+          top: this.y,
+          bottom: this.y + this.height
+        };
         collidables.forEach(block => {
-          if (Math.abs(this.y - block.y) < 20 && Math.abs(this.x - block.x) < 32) {
+          const bBox = {
+            left: block.x,
+            right: block.x + block.width,
+            top: block.y,
+            bottom: block.y + block.height
+          };
+          const overlapX = myBox.right > bBox.left && myBox.left < bBox.right;
+          const overlapY = (myBox.bottom - 4) > bBox.top && (myBox.top + 4) < bBox.bottom;
+          if (overlapX && overlapY) {
             collided = true;
           }
         });
@@ -845,6 +1099,7 @@ document.addEventListener('DOMContentLoaded', () => {
           this.x += this.speedX * 2;
         }
       }
+
     }
 
     takeStompDamage() {
@@ -879,40 +1134,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     draw() {
-      const frameWidth = assets.enemies.width / 5;
-      const frameHeight = assets.enemies.height / 2;
       const animFrame = Math.floor(Date.now() / 250) % 2;
-      
-      ctx.save();
-      
-      if (this.stamped) {
-        // Draw squashed flat goomba look
-        ctx.globalAlpha = Math.max(0, 1 - this.stampTimer / 500);
-        ctx.translate(this.x - cameraX + this.width/2, this.y + this.height - 10);
-        ctx.scale(1.3, 0.25);
-        ctx.drawImage(
-          assets.enemies,
-          this.sliceIdx * frameWidth, animFrame * frameHeight, frameWidth, frameHeight,
-          -this.width/2, -this.height/2, this.width, this.height
-        );
-        ctx.restore();
-        return;
-      }
+      const screenPos = worldToScreen(this.x, this.y);
+      const facingRight = (this.speedX <= 0 || this.type === 'bowser');
+      const opacity = this.stamped ? Math.max(0, 1 - this.stampTimer / 500) : 1;
 
-      // Flip enemy image based on walk speed
-      ctx.translate(this.x - cameraX + this.width/2, this.y + this.height/2);
-      if (this.speedX > 0 && this.type !== 'bowser') {
-        ctx.scale(-1, 1);
-      }
-
-      ctx.drawImage(
+      drawSprite(
+        ctx,
         assets.enemies,
-        this.sliceIdx * frameWidth, animFrame * frameHeight, frameWidth, frameHeight,
-        -this.width/2, -this.height/2, this.width, this.height
+        'enemy',
+        animFrame,
+        this.sliceIdx,
+        screenPos.x,
+        screenPos.y,
+        this.width,
+        this.height,
+        facingRight,
+        0,
+        opacity,
+        true,
+        this.stamped
       );
-      
-      ctx.restore();
     }
+
   }
 
   // ----------------------------------------------------
@@ -941,17 +1185,24 @@ document.addEventListener('DOMContentLoaded', () => {
       this.vy += 0.4;
       this.y += this.vy;
 
-      // Collisions against structures
+      // Collisions against structures (robust AABB intersection)
       collidables.forEach(block => {
-        if (this.x + this.width > block.x && this.x < block.x + block.width) {
-          // Land on top
-          if (this.vy >= 0 && this.y + this.height >= block.y && this.y + this.height - this.vy <= block.y + 10) {
-            this.y = block.y - this.height;
-            this.vy = 0;
-            this.onGround = true;
-          }
-          // Hit sides - bounce back
-          else if (Math.abs(this.y - block.y) < BLOCK_SIZE/2 && Math.abs(this.x - block.x) < 32) {
+        const iBox = { left: this.x, right: this.x + this.width, top: this.y, bottom: this.y + this.height };
+        const bBox = { left: block.x, right: block.x + block.width, top: block.y, bottom: block.y + block.height };
+        
+        if (iBox.right > bBox.left && iBox.left < bBox.right && iBox.bottom > bBox.top && iBox.top < bBox.bottom) {
+          const overlapX = Math.min(iBox.right - bBox.left, bBox.right - iBox.left);
+          const overlapY = Math.min(iBox.bottom - bBox.top, bBox.bottom - iBox.top);
+          
+          if (overlapY < overlapX) {
+            // Vertical collision resolution
+            if (this.vy >= 0 && iBox.bottom - this.vy <= bBox.top + 15) {
+              this.y = bBox.top - this.height;
+              this.vy = 0;
+              this.onGround = true;
+            }
+          } else {
+            // Horizontal collision resolution (bounce back)
             this.vx *= -1;
             this.x += this.vx;
           }
@@ -961,23 +1212,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     draw() {
       ctx.save();
-      // Draw colorful glowing items
       ctx.fillStyle = this.color;
       ctx.shadowBlur = 10;
       ctx.shadowColor = this.color;
       
-      // Draw round capsule item
+      // Draw round capsule item using worldToScreen coordinates
+      const center = worldToScreen(this.x + 22.5, this.y + 22.5);
       ctx.beginPath();
-      ctx.arc(this.x + 15 - cameraX, this.y + 15, 12, 0, Math.PI * 2);
+      ctx.arc(center.x, center.y, 18, 0, Math.PI * 2);
       ctx.fill();
       
       // Draw inner pattern
       ctx.fillStyle = '#080813';
       ctx.shadowBlur = 0;
-      ctx.fillRect(this.x + 12 - cameraX, this.y + 12, 6, 6);
+      const pattern = worldToScreen(this.x + 19.5, this.y + 19.5);
+      ctx.fillRect(pattern.x, pattern.y, 6, 6);
 
       ctx.restore();
     }
+
   }
 
   // ----------------------------------------------------
@@ -1001,14 +1254,21 @@ document.addEventListener('DOMContentLoaded', () => {
       this.vy += 0.3;
       this.y += this.vy;
 
-      // Pipe / brick bounces
+      // Pipe / brick bounces (robust AABB intersection)
       collidables.forEach(block => {
-        if (this.x + this.width > block.x && this.x < block.x + block.width) {
-          if (this.vy >= 0 && this.y + this.height >= block.y && this.y + this.height - this.vy <= block.y + 10) {
-            this.y = block.y - this.height;
-            this.vy = -4.5; // bounce up
-          }
-          else if (Math.abs(this.y - block.y) < BLOCK_SIZE/2 && Math.abs(this.x - block.x) < 20) {
+        const pBox = { left: this.x, right: this.x + this.width, top: this.y, bottom: this.y + this.height };
+        const bBox = { left: block.x, right: block.x + block.width, top: block.y, bottom: block.y + block.height };
+        
+        if (pBox.right > bBox.left && pBox.left < bBox.right && pBox.bottom > bBox.top && pBox.top < bBox.bottom) {
+          const overlapX = Math.min(pBox.right - bBox.left, bBox.right - pBox.left);
+          const overlapY = Math.min(pBox.bottom - bBox.top, bBox.bottom - pBox.top);
+          
+          if (overlapY < overlapX) {
+            if (this.vy >= 0 && pBox.bottom - this.vy <= bBox.top + 12) {
+              this.y = bBox.top - this.height;
+              this.vy = -4.5; // bounce up
+            }
+          } else {
             this.destroyed = true;
           }
         }
@@ -1022,11 +1282,13 @@ document.addEventListener('DOMContentLoaded', () => {
       ctx.shadowBlur = 12;
       ctx.shadowColor = color;
       
+      const center = worldToScreen(this.x + 12, this.y + 12);
       ctx.beginPath();
-      ctx.arc(this.x + 12 - cameraX, this.y + 12, 12, 0, Math.PI*2);
+      ctx.arc(center.x, center.y, 12, 0, Math.PI*2);
       ctx.fill();
       ctx.restore();
     }
+
   }
 
   // ----------------------------------------------------
@@ -1057,9 +1319,11 @@ document.addEventListener('DOMContentLoaded', () => {
       ctx.fillStyle = this.color;
       ctx.shadowBlur = 4;
       ctx.shadowColor = this.color;
-      ctx.fillRect(this.x - cameraX, this.y, this.size, this.size);
+      const screen = worldToScreen(this.x, this.y);
+      ctx.fillRect(screen.x, screen.y, this.size, this.size);
       ctx.restore();
     }
+
   }
 
   // Helper: explosions on impact
@@ -1186,13 +1450,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (overlapY < overlapX) {
           // Vertical Collision
-          if (player.vy >= 0 && pBox.bottom - player.vy <= bBox.top + 8) {
+          if (player.vy >= 0 && pBox.bottom - player.vy <= bBox.top + 12) {
             player.y = bBox.top - player.height;
             player.vy = 0;
             stoodOnObject = true;
             player.stompCombo = 0;
           } 
-          else if (player.vy < 0 && pBox.top - player.vy >= bBox.bottom - 8) {
+          else if (player.vy < 0 && pBox.top - player.vy >= bBox.bottom - 12) {
             player.y = bBox.bottom;
             player.vy = 0.5; // bounce down
             
@@ -1373,6 +1637,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // VICTORY / DEATH SEQUENCES
   // ----------------------------------------------------
   function triggerVictory() {
+    localStorage.setItem(levelDeathsKey, '0');
     levelComplete = true;
     gameState = 'PAUSED';
     sounds.victory();
@@ -1437,6 +1702,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function triggerDeath() {
+    levelDeaths++;
+    localStorage.setItem(levelDeathsKey, levelDeaths);
     gameState = 'GAMEOVER';
     sounds.gameover();
     triggerVibrate([300, 100, 300]);
@@ -1497,13 +1764,25 @@ document.addEventListener('DOMContentLoaded', () => {
     // Update player
     player.update(dt);
 
-    // Camera follow X smoothly with clamping bounds
-    const targetCamX = player.x - canvas.width / 3;
-    cameraX = targetCamX;
+    // Camera follow X & Y smoothly with LERP clamping bounds (centering player)
+    const targetCamX = player.x + player.width / 2 - canvas.width / 2;
+    const targetCamY = player.y + player.height / 2 - canvas.height / 2;
+
+    const lerpSpeed = 0.08;
+    const t = 1 - Math.exp(-lerpSpeed * (dt / 16.66));
+
+    cameraX += (targetCamX - cameraX) * t;
+    cameraY += (targetCamY - cameraY) * t;
+
+    // Clamp camera to world boundaries
+    const maxCamX = (gridCols * BLOCK_SIZE) - canvas.width;
     if (cameraX < 0) cameraX = 0;
-    if (cameraX > (gridCols * BLOCK_SIZE) - canvas.width) {
-      cameraX = (gridCols * BLOCK_SIZE) - canvas.width;
-    }
+    if (cameraX > maxCamX) cameraX = maxCamX;
+
+    const maxCamY = (gridRows * BLOCK_SIZE) - canvas.height;
+    if (cameraY < 0) cameraY = 0;
+    if (cameraY > maxCamY) cameraY = maxCamY;
+
 
     // Update status HUD bar
     if (player.powerup && player.powerup !== 'mushroom') {
@@ -1577,16 +1856,31 @@ document.addEventListener('DOMContentLoaded', () => {
     ctx.restore();
   }
 
+  let accumulator = 0;
+  const dtLogical = 1000 / 60; // 60Hz physics update (16.66ms per step)
+  const maxFrameTime = 250; // clamp to prevent spiral of death
+
   function gameLoop(timestamp) {
-    let dt = timestamp - lastTime;
-    if (dt > 100) dt = 16.66;
+    let frameTime = timestamp - lastTime;
+    if (frameTime > maxFrameTime) {
+      frameTime = maxFrameTime;
+    }
     lastTime = timestamp;
 
-    update(dt);
+    accumulator += frameTime;
+
+    // Run physics updates at fixed intervals
+    while (accumulator >= dtLogical) {
+      update(dtLogical);
+      accumulator -= dtLogical;
+    }
+
+    // Draw the current state
     draw();
 
     requestAnimationFrame(gameLoop);
   }
+
 
   // Load level blocks
   loadLevelFromGrid();
@@ -1604,8 +1898,12 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   function setJump(state) {
     keys.jump = state;
+    if (state) {
+      player.jumpBufferTimer = 150; // set 150ms buffer timer
+    }
     initAudio();
   }
+
   function triggerSpecial() {
     keys.special = true;
     initAudio();
@@ -1638,7 +1936,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const maxDrag = 40;
 
   function handleJoystickStart(e) {
-    e.preventDefault();
+    if (e.cancelable) e.preventDefault();
     const touch = e.changedTouches[0];
     joystickActive = true;
     joystickTouchId = touch.identifier;
@@ -1658,6 +1956,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function handleJoystickMove(e) {
+    if (e.cancelable) e.preventDefault();
     if (!joystickActive) return;
     
     for (let i = 0; i < e.touches.length; i++) {
@@ -1693,6 +1992,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function handleJoystickEnd(e) {
+    if (e.cancelable) e.preventDefault();
     if (!joystickActive) return;
     
     for (let i = 0; i < e.changedTouches.length; i++) {
@@ -1711,6 +2011,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
   }
+
 
   if (joystickContainer) {
     joystickContainer.addEventListener('touchstart', handleJoystickStart, { passive: false });
@@ -1843,4 +2144,12 @@ document.addEventListener('DOMContentLoaded', () => {
   btnPauseHome.addEventListener('click', () => {
     window.location.href = '../index.html';
   });
+  // Prevent browser gestures, pull-to-refresh, and scrolling on the game page
+  document.addEventListener('touchmove', e => {
+    if (e.target.closest('.canvas-container') || e.target.closest('.mobile-controls') || e.target.id === 'gameCanvas') {
+      if (e.cancelable) e.preventDefault();
+    }
+  }, { passive: false });
 });
+
+
