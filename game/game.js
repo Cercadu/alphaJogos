@@ -1,6 +1,20 @@
 // AlphaDino 2D Cartoon Game Engine (Looney Tunes Style)
 
 document.addEventListener('DOMContentLoaded', () => {
+  let hasRequestedFullscreen = false;
+  const requestFullscreen = () => {
+    if (hasRequestedFullscreen) return;
+    hasRequestedFullscreen = true;
+    const docEl = document.documentElement;
+    if (docEl.requestFullscreen) {
+      docEl.requestFullscreen().catch(e => console.log(e));
+    } else if (docEl.webkitRequestFullscreen) {
+      docEl.webkitRequestFullscreen().catch(e => console.log(e));
+    }
+  };
+  document.addEventListener('touchstart', requestFullscreen, { passive: true, once: true });
+  document.addEventListener('mousedown', requestFullscreen, { passive: true, once: true });
+
   const canvas = document.getElementById('gameCanvas');
   const ctx = canvas.getContext('2d');
 
@@ -220,75 +234,75 @@ document.addEventListener('DOMContentLoaded', () => {
   // Wacky progressive cartoon level maps (12 rows, exact length per row)
   const levelMaps = {
     1: [
-      "                                                                                                                                                                                                ",
-      "                                                                                                                                                                                                ",
-      "                                                                                                                                                                                                ",
-      "                                                                                                                                                                                                ",
-      "                                                                                                                                                                                                ",
-      "                 B Q B             C C C             B M B                               B Q B                                                                                                  ",
-      "                                                                                                                                                                                                ",
-      "                                C C C                                                                         C C C                                                                             ",
-      "                             B Q M Q B                                                                     B Q S Q B                                                                            ",
-      "          P                                                             P B P                                                                  P                                             L  ",
-      "         P P               E               E               E           P B B P            E               E               E                   P P                                            ",
-      "GGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG"
+      "                                                                                                                                                                                    ",
+      "                                                                                                                                                                                    ",
+      "                                                                                                                                                                                    ",
+      "                                                                                                                                                                                    ",
+      "                                                                                                                                                                                    ",
+      "                                                                                                                                  CCC                                               ",
+      "                                                                                     CCC                                                                                            ",
+      "                  BQB               BMB                       BFB                              BSB                      BAB                                                         ",
+      "                                   C            P          C                                             P         C                                                                ",
+      "                            P     C C           P         C C              P                             P        C C                     P                                         ",
+      "               E    E       P      E  E      E  P           E  E  E        P              E  E        E  P                E  E         E  P E                   E  E        L       ",
+      "GGGGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGG    GGGGGGGGGGGGGGGGGGGGGGGGGG    GGGGGGGGGGGGGGGGGGGGGGGGGG     GGGGGGGGGGGGGGGGGGGGGGGGGGGGGG    GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG",
     ],
     2: [
-      "                                                                                                                                                                                                                                ",
-      "                                                                                                                                                                                                                                ",
-      "                                                                                                                                                                                                                                ",
-      "                                                                                                                                                                                                                                ",
-      "                                                                                                                                                                                                                                ",
-      "                 B S B             C C C             B Q B                                                                                             B Q B                                                                    ",
-      "                                  B Q F B                                                                                                           B Q S B                                                                     ",
-      "                                                                                                                                                                                                                                ",
-      "                                                                        C C C                                                                                                   C C C                                           ",
-      "                             K                                         B Q Q B                            E              E              K                                      B Q Q B                                       L  ",
-      "          P                 P P                                       P B B P                            P P            P P            P P                                    P B B P                                       ",
-      "GGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGG   GGGGGGGGGGGGGG   GGGGGGGGGGGGGG   GGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG"
+      "                                                                                                                                                                                                        ",
+      "                                                                                                                                                                                                        ",
+      "                                                                                                                                                                                                        ",
+      "                                                                                                                                                                                                        ",
+      "                                                                                                                                                                                                        ",
+      "                                                  CCC                                                              CCC                                CCC                                               ",
+      "                                                                                                                                                                                                        ",
+      "                    BMB                 BQB                           BFBQB                              BSB                      BAB                           BQB                                     ",
+      "                                                                    P                                                                         P                                                         ",
+      "                                  P                                 P                                                 P                       P                           P                             ",
+      "                  E   K           P   K   K       E   E             P   K   E   K                   E   K       K   E P               K   K   P  E  E             K   E   P           K   K     L       ",
+      "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGG    GGGGGGGGGGGGGGGGGGGGGGGGGG    GGGGGGGGGGGGGGGGGGGGGGGGGG     GGGGGGGGGGGGGGGGGGGGGGGGG     GGGGGGGGGGGGGGGGGGGGGGGGG      GGGGGGGGGGGGGGGGGGG    GGGGGGGGGGGGGGGGGGGGG",
     ],
     3: [
-      "                                                                                                                                                                                                                                                ",
-      "                                                                                                                                                                                                                                                ",
-      "                                                                                                                                                                                                                                                ",
-      "                                                                                                                                                                                                                                                ",
-      "                                                                                                                                                                                                                                                ",
-      "                 B A B                               B Q B                                                                                             B Q B                                                                            ",
-      "                                                                                                                                                                                                                                                ",
-      "                                C C C                                                                                                               C C C                                                                               ",
-      "                             B Q M Q B                    T                                             T                                            B Q M Q B                                                                          ",
-      "          T                                                              C C                                                                                                 C C                                                     L  ",
-      "          P                 P P                                         P B P                           P P            P P                                                  P B P                                                   ",
-      "GGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGG   GGGGGGGGGGGGGG   GGGGGGGGGGGGGG   GGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG"
+      "                                                                                                                                                                                                                            ",
+      "                                                                                                                                                                                                                            ",
+      "                                                                                                                                                                                                                            ",
+      "                                                                                                                                                                                                                            ",
+      "                                                                                                                                                                                                                            ",
+      "                              CCC                                               CCC                                               CCC                                               CCC                                     ",
+      "                                                                                                                                                                                                                            ",
+      "                  BMB                   BQB                         BFB                     BSB                       BAB                     BQB                       BSB                     BQB                         ",
+      "                                                              P                                                   P                                               P                                                         ",
+      "                                P                             P                         P                         P                       P                       P                         P                               ",
+      "               T            T   P     T                T  T   P               T      T  P                T    T   P             T   T     P                T    T P               T      T  P             T   T     L       ",
+      "GGGGGGGGGGGGGGGGGGGG     GGGGGGGGGGGGGGGGGGGG     GGGGGGGGGGGGGGGGGGGG      GGGGGGGGGGGGGGGGGGG      GGGGGGGGGGGGGGGGGGG       GGGGGGGGGGGGGGGGGG      GGGGGGGGGGGGGGGGGGG       GGGGGGGGGGGGGGGGGG     GGGGGGGGGGGGGGGGGGGG",
     ],
     4: [
-      "                                                                                                                                                                                                                                                                ",
-      "                                                                                                                                                                                                                                                                ",
-      "                                                                                                                                                                                                                                                                ",
-      "                                                                                                                                                                                                                                                                ",
-      "                                                                                                                                                                                                                                                                ",
-      "                 B S B                                                                                             B S B                                                                                                                                        ",
-      "                                                                                                                                                                                                                                                                ",
-      "                                C D C                                                                                                               C D C                                                                                                       ",
-      "                             B Q F Q B                                                                                                           B Q F Q B                                                                                                      ",
-      "          P                                                             P B P                                           P                                                               P B P                                                        L  ",
-      "         P P               D               D                           P B B P            D               D            P P                                                             P B B P                                                       ",
-      "GGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGG   GGGGGGGGGGGGGG   GGGGGGGGGGGGGG   GGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG"
+      "                                                                                                                                                                                                                                                ",
+      "                                                                                                                                                                                                                                                ",
+      "                                                                                                                                                                                                                                                ",
+      "                                                                                                                                                                                                                                                ",
+      "                            CCC                                                 CCC                                                         CCC                                                         CCC                                     ",
+      "                                        D                                   D                                       D                                       D                                       D                                           ",
+      "                      D                                 D                                       D                                       D                                       D                                       D                       ",
+      "                            BMB     D                       BQB         D                 BFB                   D       BSB                           BAB                           BQB         D                 BSB                           ",
+      "                  D                                 D                                       D            P                          D                                       D                                       D       P                   ",
+      "                                                P                                                        P                                                           P                                                      P                   ",
+      "                                                P                                                        P                                                           P                                                      P           L       ",
+      "GGGGGGGGGGGGGGGGGGGGGGGGG    GGGGGGGGGGGGGGGGGGGGGGGGGG     GGGGGGGGGGGGGGGGGGGGGGGGG      GGGGGGGGGGGGGGGGGGGGGGGG      GGGGGGGGGGGGGGGGGGGGGGGG      GGGGGGGGGGGGGGGGGGGGGGGG       GGGGGGGGGGGGGGGGGGGGGGG     GGGGGGGGGGGGGGGGGGGGGGGGGGGGGG",
     ],
     5: [
-      "                                                                                                                                                                                                                                                                                ",
-      "                                                                                                                                                                                                                                                                                ",
-      "                                                                                                                                                                                                                                                                                ",
-      "                                                                                                                                                                                                                                                                                ",
-      "                                                                                                                                                                                                                                                                                ",
-      "                 B S B                                                                                             B S B                                                                                                                                                        ",
-      "                                                                                                                                                                                                                                                                                ",
-      "                                C C C                                                                                                               C C C                                                                                                                       ",
-      "                             B Q M Q B                                                                                                           B Q M Q B                                                                                                                      ",
-      "          P                                                                                             P B P                                                                                           P B P                                                                L  ",
-      "         P P               K               T               D               E                           P B B P            E               K               T               D                             P B B P                              X                               ",
-      "GGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGG   GGGGGGGGGGGGGG   GGGGGGGGGGGGGG   GGGGGGGGGGGGGG   GGGGGGGGGGGGGG   GGGGGGGGGGGGGG   GGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG"
-    ]
+      "                                                                                                                                                                                                                                                                    ",
+      "                                                                                                                                                                                                                                                                    ",
+      "                                                                                                                                                                                                                                                                    ",
+      "                                                                                                                                                                                                                                                                    ",
+      "                                                                                                                                                                                                                                                                    ",
+      "                         CC                                                CC                                                CC                                                          CC                                                                         ",
+      "                                                                                                                                                                                                                                                                    ",
+      "                      BMB                             BQB                            BFB                           BSB                      BAB                      BMB                      BFB                 BSB                 BAB                           ",
+      "                                                                                          P                                                                                    P                                                                                    ",
+      "                                        P                                                 P                                       P                                            P                                                 P                                  ",
+      "               E  K           T  D      P           E  E  K                   T   D       P              K  K  T                  P E  D                  K  T                 P    E  K  T                  D  D      T  K      P              X               L   ",
+      "GGGGGGGGGGGGGGGGGGGG     GGGGGGGGGGGGGGGGGGGG     GGGGGGGGGGGGGGGGGGGG      GGGGGGGGGGGGGGGGGGG      GGGGGGGGGGGGGGGGGGG      GGGGGGGGGGGGGGGGGGG       GGGGGGGGGGGGGGGGGG       GGGGGGGGGGGGGGGGGG       GGGGGGGGGGGGGGGGGG      GGGGGGGGGGGGGGGGGGGGGG        GGGG",
+    ],
   };
 
   const activeGrid = levelMaps[selectedLevelNum] || levelMaps[1];
@@ -316,128 +330,12 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-  // Pre-calculated boundaries for spritesheets
-  let dinoBounds = null;
-  let enemyBounds = null;
-
   function scanDinoBounds(image) {
-    const cols = 5;
-    const rows = 5;
-    const frameWidth = image.width / cols;
-    const frameHeight = image.height / rows;
-    const canvas = document.createElement('canvas');
-    canvas.width = frameWidth;
-    canvas.height = frameHeight;
-    const tempCtx = canvas.getContext('2d');
-    const bounds = [];
-    
-    // Ignore the bottom 15% where labels are placed
-    const scanHeight = Math.floor(frameHeight * 0.85);
-    
-    for (let r = 0; r < rows; r++) {
-      let globalMinX = frameWidth;
-      let globalMaxX = 0;
-      let globalMinY = frameHeight;
-      let globalMaxY = 0;
-      let foundAny = false;
-      
-      for (let c = 0; c < cols; c++) {
-        tempCtx.clearRect(0, 0, frameWidth, frameHeight);
-        tempCtx.drawImage(image, c * frameWidth, r * frameHeight, frameWidth, frameHeight, 0, 0, frameWidth, frameHeight);
-        
-        let imgData;
-        try {
-          imgData = tempCtx.getImageData(0, 0, frameWidth, frameHeight);
-        } catch (e) {
-          foundAny = false;
-          break;
-        }
-        
-        for (let y = 0; y < scanHeight; y++) {
-          for (let x = 0; x < frameWidth; x++) {
-            const idx = (y * frameWidth + x) * 4;
-            const alpha = imgData.data[idx + 3];
-            if (alpha > 10) {
-              if (x < globalMinX) globalMinX = x;
-              if (x > globalMaxX) globalMaxX = x;
-              if (y < globalMinY) globalMinY = y;
-              if (y > globalMaxY) globalMaxY = y;
-              foundAny = true;
-            }
-          }
-        }
-      }
-      
-      if (!foundAny) {
-        bounds[r] = { minX: 0, maxX: frameWidth - 1, minY: 0, maxY: scanHeight - 1, sWidth: frameWidth, sHeight: scanHeight };
-      } else {
-        bounds[r] = {
-          minX: globalMinX, maxX: globalMaxX, minY: globalMinY, maxY: globalMaxY,
-          sWidth: globalMaxX - globalMinX + 1, sHeight: globalMaxY - globalMinY + 1
-        };
-      }
-    }
-    return bounds;
+    return null; // Bypass dynamic scanning
   }
 
   function scanEnemyBounds(image) {
-    const cols = 5;
-    const rows = 2;
-    const frameWidth = image.width / cols;
-    const frameHeight = image.height / rows;
-    const canvas = document.createElement('canvas');
-    canvas.width = frameWidth;
-    canvas.height = frameHeight;
-    const tempCtx = canvas.getContext('2d');
-    const bounds = [];
-    
-    // Ignore the bottom 15% where labels are placed
-    const scanHeight = Math.floor(frameHeight * 0.85);
-    
-    for (let c = 0; c < cols; c++) {
-      let globalMinX = frameWidth;
-      let globalMaxX = 0;
-      let globalMinY = frameHeight;
-      let globalMaxY = 0;
-      let foundAny = false;
-      
-      for (let r = 0; r < rows; r++) {
-        tempCtx.clearRect(0, 0, frameWidth, frameHeight);
-        tempCtx.drawImage(image, c * frameWidth, r * frameHeight, frameWidth, frameHeight, 0, 0, frameWidth, frameHeight);
-        
-        let imgData;
-        try {
-          imgData = tempCtx.getImageData(0, 0, frameWidth, frameHeight);
-        } catch (e) {
-          foundAny = false;
-          break;
-        }
-        
-        for (let y = 0; y < scanHeight; y++) {
-          for (let x = 0; x < frameWidth; x++) {
-            const idx = (y * frameWidth + x) * 4;
-            const alpha = imgData.data[idx + 3];
-            if (alpha > 10) {
-              if (x < globalMinX) globalMinX = x;
-              if (x > globalMaxX) globalMaxX = x;
-              if (y < globalMinY) globalMinY = y;
-              if (y > globalMaxY) globalMaxY = y;
-              foundAny = true;
-            }
-          }
-        }
-      }
-      
-      if (!foundAny) {
-        bounds[c] = { minX: 0, maxX: frameWidth - 1, minY: 0, maxY: scanHeight - 1, sWidth: frameWidth, sHeight: scanHeight };
-      } else {
-        bounds[c] = {
-          minX: globalMinX, maxX: globalMaxX, minY: globalMinY, maxY: globalMaxY,
-          sWidth: globalMaxX - globalMinX + 1, sHeight: globalMaxY - globalMinY + 1
-        };
-      }
-    }
-    return bounds;
+    return null; // Bypass dynamic scanning
   }
 
   // Unified rendering layer aligning sprite center of mass with collision hitbox
@@ -445,34 +343,14 @@ document.addEventListener('DOMContentLoaded', () => {
     ctx.save();
     ctx.globalAlpha = opacity;
 
-    let bounds = null;
-    let frameWidth = 0;
-    let frameHeight = 0;
-    let sX, sY, sW, sH;
-
-    if (!isEnemy) {
-      frameWidth = image.width / 5;
-      frameHeight = image.height / 5;
-      bounds = dinoBounds ? dinoBounds[rowIdx] : null;
-    } else {
-      frameWidth = image.width / 5;
-      frameHeight = image.height / 2;
-      bounds = enemyBounds ? enemyBounds[colIdx] : null;
-    }
-
-    if (bounds) {
-      sX = colIdx * frameWidth + bounds.minX;
-      sY = rowIdx * frameHeight + bounds.minY;
-      sW = bounds.sWidth;
-      sH = bounds.sHeight;
-    } else {
-      frameWidth = image.width / 5;
-      frameHeight = isEnemy ? (image.height / 2) : (image.height / 5);
-      sW = frameWidth;
-      sH = Math.floor(frameHeight * 0.85); // fallback ignores bottom 15%
-      sX = colIdx * frameWidth;
-      sY = rowIdx * frameHeight;
-    }
+    let frameWidth = image.width / 5;
+    let frameHeight = image.height / 5;
+    
+    // Fallback: ignore bottom 15% labels
+    let sW = frameWidth;
+    let sH = Math.floor(frameHeight * 0.85);
+    let sX = colIdx * frameWidth;
+    let sY = rowIdx * frameHeight;
 
     let scale = destHeight / sH;
     let renderW = sW * scale;
@@ -497,6 +375,20 @@ document.addEventListener('DOMContentLoaded', () => {
       ctx.drawImage(image, sX, sY, sW, sH, drawX, drawY, renderW, renderH);
     }
 
+    ctx.restore();
+  }
+
+  function drawTileCell(ctx, image, colIdx, rowIdx, screenX, screenY, destWidth, destHeight) {
+    const cellW = image.width / 6;
+    const cellH = image.height / 6;
+    const sH = cellH * 0.85; // Ignore bottom 15% (labels)
+    
+    ctx.save();
+    ctx.drawImage(
+      image,
+      colIdx * cellW, rowIdx * cellH, cellW, sH,
+      screenX, screenY, destWidth, destHeight
+    );
     ctx.restore();
   }
 
@@ -869,6 +761,174 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let player = new Player();
 
+  function getGroundSliceIdx(gridX, gridY) {
+    const row = activeGrid[gridY];
+    if (!row) return 1;
+    const leftIsG = (gridX > 0) && (row[gridX - 1] === 'G');
+    const rightIsG = (gridX < row.length - 1) && (row[gridX + 1] === 'G');
+    
+    if (leftIsG && rightIsG) return 1;
+    if (!leftIsG && rightIsG) return 0;
+    if (leftIsG && !rightIsG) return 2;
+    return 1;
+  }
+
+  function drawBrickBlock(ctx, screenX, screenY, width, height, theme) {
+    ctx.save();
+    let colorMain = '#b35936';
+    let colorDark = '#732c10';
+    let colorLight = '#d98c6c';
+    
+    if (theme === 2) {
+      colorMain = '#cfa053';
+      colorDark = '#8a6224';
+      colorLight = '#e6be83';
+    } else if (theme === 4) {
+      colorMain = '#57576b';
+      colorDark = '#2c2c3b';
+      colorLight = '#82829c';
+    }
+    
+    ctx.fillStyle = colorDark;
+    ctx.fillRect(screenX, screenY, width, height);
+    
+    ctx.fillStyle = colorMain;
+    ctx.fillRect(screenX + 3, screenY + 3, width - 6, height - 6);
+    
+    ctx.fillStyle = colorLight;
+    ctx.fillRect(screenX + 3, screenY + 3, width - 6, 3);
+    ctx.fillRect(screenX + 3, screenY + 3, 3, height - 6);
+    
+    ctx.strokeStyle = colorDark;
+    ctx.lineWidth = 3;
+    
+    ctx.beginPath();
+    ctx.moveTo(screenX + 3, screenY + height / 3);
+    ctx.lineTo(screenX + width - 3, screenY + height / 3);
+    ctx.moveTo(screenX + 3, screenY + (2 * height) / 3);
+    ctx.lineTo(screenX + width - 3, screenY + (2 * height) / 3);
+    ctx.stroke();
+    
+    ctx.beginPath();
+    ctx.moveTo(screenX + width / 2, screenY + 3);
+    ctx.lineTo(screenX + width / 2, screenY + height / 3);
+    
+    ctx.moveTo(screenX + width / 3, screenY + height / 3);
+    ctx.lineTo(screenX + width / 3, screenY + (2 * height) / 3);
+    ctx.moveTo(screenX + (2 * width) / 3, screenY + height / 3);
+    ctx.lineTo(screenX + (2 * width) / 3, screenY + (2 * height) / 3);
+    
+    ctx.moveTo(screenX + width / 2, screenY + (2 * height) / 3);
+    ctx.lineTo(screenX + width / 2, screenY + height - 3);
+    ctx.stroke();
+    
+    ctx.fillStyle = 'rgba(255,255,255,0.15)';
+    ctx.fillRect(screenX + 6, screenY + 6, 8, 4);
+    ctx.fillRect(screenX + width/2 + 6, screenY + 6, 8, 4);
+    
+    ctx.strokeStyle = '#2d1406';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(screenX, screenY, width, height);
+    ctx.restore();
+  }
+
+  function drawQuestionBlock(ctx, screenX, screenY, width, height, hit, theme) {
+    ctx.save();
+    if (hit) {
+      let colorMain = '#8c7d70';
+      let colorDark = '#594d43';
+      let colorLight = '#bfaea1';
+      
+      if (theme === 2) {
+        colorMain = '#a8947d';
+        colorDark = '#6e5e4d';
+        colorLight = '#d4c0ab';
+      } else if (theme === 4) {
+        colorMain = '#56505c';
+        colorDark = '#332f38';
+        colorLight = '#7b7482';
+      }
+      
+      ctx.fillStyle = colorDark;
+      ctx.fillRect(screenX, screenY, width, height);
+      ctx.fillStyle = colorMain;
+      ctx.fillRect(screenX + 3, screenY + 3, width - 6, height - 6);
+      
+      ctx.fillStyle = colorLight;
+      ctx.fillRect(screenX + 3, screenY + 3, width - 6, 3);
+      ctx.fillRect(screenX + 3, screenY + 3, 3, height - 6);
+      
+      ctx.fillStyle = colorDark;
+      ctx.beginPath();
+      ctx.arc(screenX + 10, screenY + 10, 3, 0, Math.PI * 2);
+      ctx.arc(screenX + width - 10, screenY + 10, 3, 0, Math.PI * 2);
+      ctx.arc(screenX + 10, screenY + height - 10, 3, 0, Math.PI * 2);
+      ctx.arc(screenX + width - 10, screenY + height - 10, 3, 0, Math.PI * 2);
+      ctx.fill();
+      
+      ctx.strokeStyle = '#2d1406';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(screenX, screenY, width, height);
+    } else {
+      let colorMain = '#fcc21b';
+      let colorDark = '#b38200';
+      let colorLight = '#ffea6c';
+      let fontColor = '#805900';
+      
+      if (theme === 2) {
+        colorMain = '#e69822';
+        colorDark = '#9c610b';
+        colorLight = '#ffc875';
+        fontColor = '#663d00';
+      } else if (theme === 4) {
+        colorMain = '#d47b1e';
+        colorDark = '#8c4906';
+        colorLight = '#ffa954';
+        fontColor = '#5c2d00';
+      }
+      
+      ctx.shadowBlur = 12;
+      ctx.shadowColor = colorMain;
+      
+      ctx.fillStyle = colorDark;
+      ctx.fillRect(screenX, screenY, width, height);
+      ctx.fillStyle = colorMain;
+      ctx.fillRect(screenX + 3, screenY + 3, width - 6, height - 6);
+      
+      ctx.fillStyle = colorLight;
+      ctx.fillRect(screenX + 3, screenY + 3, width - 6, 4);
+      ctx.fillRect(screenX + 3, screenY + 3, 4, height - 6);
+      
+      ctx.shadowBlur = 0;
+      
+      ctx.fillStyle = colorDark;
+      ctx.beginPath();
+      ctx.arc(screenX + 10, screenY + 10, 3.5, 0, Math.PI * 2);
+      ctx.arc(screenX + width - 10, screenY + 10, 3.5, 0, Math.PI * 2);
+      ctx.arc(screenX + 10, screenY + height - 10, 3.5, 0, Math.PI * 2);
+      ctx.arc(screenX + width - 10, screenY + height - 10, 3.5, 0, Math.PI * 2);
+      ctx.fill();
+      
+      ctx.font = `bold ${Math.floor(height * 0.55)}px var(--font-display)`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      
+      ctx.fillStyle = colorDark;
+      ctx.fillText('?', screenX + width / 2 + 2, screenY + height / 2 + 3);
+      
+      ctx.fillStyle = '#ffffff';
+      ctx.strokeStyle = fontColor;
+      ctx.lineWidth = 4.5;
+      ctx.strokeText('?', screenX + width / 2, screenY + height / 2);
+      ctx.fillText('?', screenX + width / 2, screenY + height / 2);
+      
+      ctx.strokeStyle = '#2d1406';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(screenX, screenY, width, height);
+    }
+    ctx.restore();
+  }
+
   // ----------------------------------------------------
   // BLOCKS CLASS
   // ----------------------------------------------------
@@ -878,24 +938,20 @@ document.addEventListener('DOMContentLoaded', () => {
       this.gridY = gridY;
       this.x = gridX * BLOCK_SIZE;
       this.y = gridY * BLOCK_SIZE;
-      this.type = type; // 'ground', 'brick', 'question', 'pipe'
+      this.type = type;
       this.itemType = itemType;
       this.width = BLOCK_SIZE;
-      this.height = BLOCK_SIZE;
       this.height = BLOCK_SIZE;
       
       this.hit = false;
       this.hitOffset = 0;
       this.hitSpeed = 0;
 
-      // Slice indices from tiles.png
-      // Ground = 0, Brick = 1, Question = 2, Coin = 3, Pipe = 4, Flagpole = 5
       this.sliceIndices = { ground: 0, brick: 1, question: 2, pipe: 4 };
       this.sliceIdx = this.sliceIndices[type] || 0;
     }
 
     update() {
-      // Bonking springy bounce
       if (this.hit && this.hitOffset > -10 && this.hitSpeed <= 0) {
         this.hitOffset -= 2;
         if (this.hitOffset <= -10) {
@@ -911,33 +967,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     draw() {
-      const frameWidth = assets.tiles.width / 6;
-      const frameHeight = assets.tiles.height / 6; // divided by 6 to crop labels and get square tiles
-
-      let renderIdx = this.sliceIdx;
-      // If question block was hit, draw it as an empty block (same slice as Pipe top or a dark version of Ground/Brick)
-      if (this.type === 'question' && this.hit) {
-        renderIdx = 1; // display as standard brick
-      }
-
       let tileRow = 0;
-      if (selectedLevelNum === 2) tileRow = 2; // Row 2 for Desert
-      else if (selectedLevelNum === 3 || selectedLevelNum === 5) tileRow = 4; // Row 4 for Cave/Lava
-
-      ctx.save();
-      // Emissives on question block
-      if (this.type === 'question' && !this.hit) {
-        ctx.shadowBlur = 5;
-        ctx.shadowColor = '#ffea00';
-      }
+      if (selectedLevelNum === 2) tileRow = 2;
+      else if (selectedLevelNum === 3 || selectedLevelNum === 5) tileRow = 4;
 
       const screen = worldToScreen(this.x, this.y - this.hitOffset);
-      ctx.drawImage(
-        assets.tiles,
-        renderIdx * frameWidth, tileRow * frameHeight, frameWidth, frameHeight,
-        screen.x, screen.y, this.width, this.height
-      );
-      ctx.restore();
+
+      if (this.type === 'brick') {
+        drawBrickBlock(ctx, screen.x, screen.y, this.width, this.height, tileRow);
+      } else if (this.type === 'question') {
+        drawQuestionBlock(ctx, screen.x, screen.y, this.width, this.height, this.hit, tileRow);
+      } else {
+        let drawColIdx = this.sliceIdx;
+        if (this.type === 'ground') {
+          drawColIdx = getGroundSliceIdx(this.gridX, this.gridY);
+        }
+        drawTileCell(ctx, assets.tiles, drawColIdx, tileRow, screen.x, screen.y, this.width, this.height);
+      }
     }
   }
 
@@ -962,24 +1008,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     draw() {
-      const frameWidth = assets.tiles.width / 6;
-      const frameHeight = assets.tiles.height / 6; // divided by 6 to crop labels and get square tiles
-      
       let tileRow = 0;
-      if (selectedLevelNum === 2) tileRow = 2; // Row 2 for Desert
-      else if (selectedLevelNum === 3 || selectedLevelNum === 5) tileRow = 4; // Row 4 for Cave/Lava
-
-      ctx.save();
-      ctx.shadowBlur = 6;
-      ctx.shadowColor = '#ffea00';
+      if (selectedLevelNum === 2) tileRow = 2;
+      else if (selectedLevelNum === 3 || selectedLevelNum === 5) tileRow = 4;
 
       const screen = worldToScreen(this.x, this.y);
-      ctx.drawImage(
-        assets.tiles,
-        3 * frameWidth, tileRow * frameHeight, frameWidth, frameHeight, // index 3 is Coin
-        screen.x, screen.y, this.width, this.height
-      );
-      ctx.restore();
+      drawTileCell(ctx, assets.tiles, 3, tileRow, screen.x, screen.y, this.width, this.height);
     }
   }
 
@@ -990,7 +1024,7 @@ document.addEventListener('DOMContentLoaded', () => {
   class Flagpole {
     constructor(gridX, gridY) {
       this.x = gridX * BLOCK_SIZE;
-      this.y = gridY * BLOCK_SIZE - 300; // Flagpole spans 6 tiles high
+      this.y = gridY * BLOCK_SIZE - 300;
       this.width = 60;
       this.height = 360;
     }
@@ -998,21 +1032,13 @@ document.addEventListener('DOMContentLoaded', () => {
     update() {}
 
     draw() {
-      const frameWidth = assets.tiles.width / 6;
-      const frameHeight = assets.tiles.height / 6; // divided by 6 to crop labels and get square tiles
-
       let tileRow = 0;
-      if (selectedLevelNum === 2) tileRow = 2; // Row 2 for Desert
-      else if (selectedLevelNum === 3 || selectedLevelNum === 5) tileRow = 4; // Row 4 for Cave/Lava
+      if (selectedLevelNum === 2) tileRow = 2;
+      else if (selectedLevelNum === 3 || selectedLevelNum === 5) tileRow = 4;
 
-      // Draw the flagpole repeating 6 times vertically
       for (let i = 0; i < 6; i++) {
         const screen = worldToScreen(this.x, this.y + (i * BLOCK_SIZE));
-        ctx.drawImage(
-          assets.tiles,
-          5 * frameWidth, tileRow * frameHeight, frameWidth, frameHeight, // index 5 is Flagpole
-          screen.x, screen.y, BLOCK_SIZE, BLOCK_SIZE
-        );
+        drawTileCell(ctx, assets.tiles, 5, tileRow, screen.x, screen.y, BLOCK_SIZE, BLOCK_SIZE);
       }
     }
   }
@@ -1035,8 +1061,11 @@ document.addEventListener('DOMContentLoaded', () => {
         this.width = 110;
         this.height = 110;
         this.y = gridY * BLOCK_SIZE + (BLOCK_SIZE - this.height);
-        this.hp = 5;
+        this.hp = 10;
         this.shootTimer = 0;
+        this.jumpTimer = 0;
+        this.vy = 0;
+        this.onGround = true;
       }
       
       this.stamped = false;
@@ -1066,18 +1095,73 @@ document.addEventListener('DOMContentLoaded', () => {
         this.y = (this.y - this.bounceY);
       }
       else if (this.type === 'bowser') {
-        // Boss fights fireballs
+        if (!this.onGround) {
+          this.vy += 0.82;
+          this.y += this.vy;
+        }
+        
+        let hitGroundThisFrame = false;
+        let myBox = { left: this.x, right: this.x + this.width, top: this.y, bottom: this.y + this.height };
+        collidables.forEach(block => {
+          let bBox = { left: block.x, right: block.x + block.width, top: block.y, bottom: block.y + block.height };
+          if (myBox.right > bBox.left && myBox.left < bBox.right && myBox.bottom > bBox.top && myBox.top < bBox.bottom) {
+            if (this.vy >= 0 && (myBox.bottom - this.vy <= bBox.top + 12)) {
+              this.y = bBox.top - this.height;
+              this.vy = 0;
+              hitGroundThisFrame = true;
+            }
+          }
+        });
+        
+        if (hitGroundThisFrame) {
+          if (!this.onGround) {
+            this.onGround = true;
+            sounds.stomp();
+            triggerScreenShake(20, 250);
+            createImpactExplosion(this.x + this.width / 2, this.y + this.height, '#ff5500');
+          }
+        } else {
+          this.onGround = false;
+        }
+
         this.shootTimer += dt;
-        // DDA: Add 500ms shooting delay per death, max 2000ms
-        const ddaDelay = Math.min(levelDeaths * 500, 2000);
-        const shootInterval = 2200 + ddaDelay;
-        if (this.shootTimer >= shootInterval && Math.abs(player.x - this.x) < 550) {
+        const isEnraged = this.hp <= 5;
+        const ddaDelay = Math.min(levelDeaths * 400, 1600);
+        const shootInterval = (isEnraged ? 1200 : 2000) + ddaDelay;
+        
+        if (this.shootTimer >= shootInterval && Math.abs(player.x - this.x) < 650) {
           this.shootTimer = 0;
           sounds.shoot();
-          projectiles.push(new Projectile(this.x - 10, this.y + 20, -1, true));
+          
+          if (isEnraged) {
+            projectiles.push(new Projectile(this.x - 10, this.y + 20, -1, true));
+            const p1 = new Projectile(this.x - 10, this.y + 10, -1, true); p1.vy = -3; projectiles.push(p1);
+            const p2 = new Projectile(this.x - 10, this.y + 30, -1, true); p2.vy = 3; projectiles.push(p2);
+          } else {
+            const p = new Projectile(this.x - 10, this.y + 20, -1, true);
+            const dy = (player.y + player.height / 2) - (this.y + 50);
+            p.vy = Math.min(Math.max(dy / 50, -4), 4);
+            projectiles.push(p);
+          }
         }
-        if (Math.random() < 0.01 && Math.abs(player.x - this.x) < 300) {
-          this.x += (player.x < this.x ? -15 : 15);
+        
+        this.jumpTimer += dt;
+        if (this.onGround && this.jumpTimer >= (isEnraged ? 2500 : 4000) && Math.abs(player.x - this.x) < 450) {
+          this.jumpTimer = 0;
+          this.vy = -14;
+          this.onGround = false;
+          this.speedX = (player.x < this.x ? -3.5 : 3.5);
+        }
+        
+        if (this.onGround) {
+          this.x += (player.x < this.x ? -1 : 1) * (isEnraged ? 1.8 : 0.8);
+        } else {
+          this.x += this.speedX;
+        }
+
+        if (this.x < 10) this.x = 10;
+        if (this.x > (gridCols * BLOCK_SIZE) - this.width - 10) {
+          this.x = (gridCols * BLOCK_SIZE) - this.width - 10;
         }
       } else {
         // Goomba / Koopa walking
@@ -1149,6 +1233,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const facingRight = (this.speedX <= 0 || this.type === 'bowser');
       const opacity = this.stamped ? Math.max(0, 1 - this.stampTimer / 500) : 1;
 
+      ctx.save();
+      const isEnraged = (this.type === 'bowser' && this.hp <= 5);
+      if (isEnraged && !this.stamped) {
+        ctx.shadowBlur = 25;
+        ctx.shadowColor = '#ff0000';
+      }
+
       drawSprite(
         ctx,
         assets.enemies,
@@ -1165,6 +1256,7 @@ document.addEventListener('DOMContentLoaded', () => {
         true,
         this.stamped
       );
+      ctx.restore();
     }
 
   }
@@ -1222,21 +1314,176 @@ document.addEventListener('DOMContentLoaded', () => {
 
     draw() {
       ctx.save();
-      ctx.fillStyle = this.color;
-      ctx.shadowBlur = 10;
-      ctx.shadowColor = this.color;
-      
-      // Draw round capsule item using worldToScreen coordinates
-      const center = worldToScreen(this.x + 22.5, this.y + 22.5);
-      ctx.beginPath();
-      ctx.arc(center.x, center.y, 18, 0, Math.PI * 2);
-      ctx.fill();
-      
-      // Draw inner pattern
-      ctx.fillStyle = '#080813';
-      ctx.shadowBlur = 0;
-      const pattern = worldToScreen(this.x + 19.5, this.y + 19.5);
-      ctx.fillRect(pattern.x, pattern.y, 6, 6);
+      const center = worldToScreen(this.x + this.width / 2, this.y + this.height / 2);
+      const cx = center.x;
+      const cy = center.y;
+
+      if (this.type === 'mushroom') {
+        // Shadow
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = '#ff3355';
+
+        // Cream Stalk
+        ctx.fillStyle = '#fff0d0';
+        ctx.strokeStyle = '#4a2306';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.roundRect(cx - 9, cy - 2, 18, 20, 4);
+        ctx.fill();
+        ctx.stroke();
+
+        // Stalk Eyes
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(cx - 4, cy + 4, 2, 6);
+        ctx.fillRect(cx + 2, cy + 4, 2, 6);
+
+        ctx.shadowBlur = 0; // reset shadow for cap
+
+        // Red Cap
+        ctx.fillStyle = '#ff3355';
+        ctx.beginPath();
+        ctx.arc(cx, cy, 18, Math.PI, 0, false);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // White Spots
+        ctx.fillStyle = '#ffffff';
+        ctx.beginPath();
+        ctx.arc(cx, cy - 10, 4.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(cx - 11, cy - 3, 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(cx + 11, cy - 3, 3, 0, Math.PI * 2);
+        ctx.fill();
+
+      } else if (this.type === 'fireflower') {
+        // Shadow
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = '#ff9900';
+
+        // Green Stem & Leaves
+        ctx.fillStyle = '#2be01b';
+        ctx.strokeStyle = '#0f5207';
+        ctx.lineWidth = 3;
+        // Stem
+        ctx.fillRect(cx - 3, cy, 6, 18);
+        ctx.strokeRect(cx - 3, cy, 6, 18);
+        // Leaves
+        ctx.beginPath();
+        ctx.ellipse(cx - 10, cy + 9, 6, 3, Math.PI / 6, 0, Math.PI * 2);
+        ctx.ellipse(cx + 10, cy + 9, 6, 3, -Math.PI / 6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.shadowBlur = 0;
+
+        // Outer Oval Petals (Red)
+        ctx.fillStyle = '#ff3333';
+        ctx.strokeStyle = '#2d0606';
+        ctx.beginPath();
+        ctx.ellipse(cx, cy - 6, 18, 12, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Middle Oval Petals (Orange)
+        ctx.fillStyle = '#ff9900';
+        ctx.beginPath();
+        ctx.ellipse(cx, cy - 6, 13, 8.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Inner Petals (Yellow/White)
+        ctx.fillStyle = '#ffff33';
+        ctx.beginPath();
+        ctx.ellipse(cx, cy - 6, 8, 5, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+
+        // Eyes
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(cx - 3, cy - 8, 1.5, 4);
+        ctx.fillRect(cx + 1.5, cy - 8, 1.5, 4);
+
+      } else if (this.type === 'star') {
+        // Glowing Golden Star
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = '#ffea00';
+
+        ctx.fillStyle = '#ffea00';
+        ctx.strokeStyle = '#614b00';
+        ctx.lineWidth = 3;
+
+        ctx.save();
+        ctx.translate(cx, cy);
+        const rot = (Date.now() / 250) % (Math.PI * 2);
+        ctx.rotate(rot);
+        
+        ctx.beginPath();
+        for (let i = 0; i < 10; i++) {
+          const angle = (i * Math.PI) / 5 - Math.PI / 2;
+          const r = (i % 2 === 0) ? 19 : 8.5;
+          ctx.lineTo(Math.cos(angle) * r, Math.sin(angle) * r);
+        }
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        ctx.restore();
+
+        // Eyes (drawn unrotated in center)
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(cx - 3, cy - 3, 1.8, 6);
+        ctx.fillRect(cx + 1.2, cy - 3, 1.8, 6);
+
+      } else if (this.type === 'magnet') {
+        // Red Horseshoe Magnet
+        ctx.shadowBlur = 12;
+        ctx.shadowColor = '#00f0ff';
+
+        // Red Body
+        ctx.fillStyle = '#ff3333';
+        ctx.strokeStyle = '#4a0303';
+        ctx.lineWidth = 3;
+        
+        ctx.beginPath();
+        // Outer U
+        ctx.arc(cx, cy + 4, 15, 0, Math.PI, false);
+        ctx.lineTo(cx - 15, cy - 10);
+        ctx.lineTo(cx - 7, cy - 10);
+        // Inner U
+        ctx.lineTo(cx - 7, cy + 4);
+        ctx.arc(cx, cy + 4, 7, Math.PI, 0, true);
+        ctx.lineTo(cx + 7, cy - 10);
+        ctx.lineTo(cx + 15, cy - 10);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Silver Tips
+        ctx.fillStyle = '#dddddd';
+        ctx.fillRect(cx - 15, cy - 10, 8, 4);
+        ctx.fillRect(cx + 7, cy - 10, 8, 4);
+        ctx.strokeRect(cx - 15, cy - 10, 8, 4);
+        ctx.strokeRect(cx + 7, cy - 10, 8, 4);
+
+        // Magnetic waves pulsing cyan
+        ctx.shadowBlur = 0;
+        ctx.strokeStyle = 'rgba(0, 240, 255, ' + (0.3 + 0.3 * Math.sin(Date.now() / 150)) + ')';
+        ctx.lineWidth = 3.5;
+        
+        ctx.beginPath();
+        ctx.arc(cx - 11, cy - 16, 6, Math.PI, 0, false);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(cx + 11, cy - 16, 6, Math.PI, 0, false);
+        ctx.stroke();
+      }
 
       ctx.restore();
     }
@@ -1965,12 +2212,14 @@ document.addEventListener('DOMContentLoaded', () => {
     joystickTouchId = touch.identifier;
     
     const rect = joystickContainer.getBoundingClientRect();
-    const x = touch.clientX - rect.left - 50;
-    const y = touch.clientY - rect.top - 50;
+    const x = touch.clientX - rect.left - 53;
+    const y = touch.clientY - rect.top - 53;
     
     joystickBase.style.position = 'absolute';
     joystickBase.style.left = `${x}px`;
     joystickBase.style.top = `${y}px`;
+    joystickBase.style.bottom = 'auto';
+    joystickBase.style.opacity = '1';
     
     startX = touch.clientX;
     startY = touch.clientY;
@@ -2024,9 +2273,11 @@ document.addEventListener('DOMContentLoaded', () => {
         joystickActive = false;
         joystickTouchId = null;
         
-        joystickBase.style.position = '';
-        joystickBase.style.left = '';
-        joystickBase.style.top = '';
+        joystickBase.style.position = 'absolute';
+        joystickBase.style.left = '40px';
+        joystickBase.style.bottom = '40px';
+        joystickBase.style.top = 'auto';
+        joystickBase.style.opacity = '0.4';
         joystickHandle.style.transform = 'translate(0px, 0px)';
         
         keys.left = false;
@@ -2047,11 +2298,13 @@ document.addEventListener('DOMContentLoaded', () => {
     joystickContainer.addEventListener('mousedown', e => {
       mouseActive = true;
       const rect = joystickContainer.getBoundingClientRect();
-      const x = e.clientX - rect.left - 50;
-      const y = e.clientY - rect.top - 50;
+      const x = e.clientX - rect.left - 53;
+      const y = e.clientY - rect.top - 53;
       joystickBase.style.position = 'absolute';
       joystickBase.style.left = `${x}px`;
       joystickBase.style.top = `${y}px`;
+      joystickBase.style.bottom = 'auto';
+      joystickBase.style.opacity = '1';
       startX = e.clientX;
       startY = e.clientY;
       initAudio();
@@ -2085,9 +2338,11 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('mouseup', () => {
       if (mouseActive) {
         mouseActive = false;
-        joystickBase.style.position = '';
-        joystickBase.style.left = '';
-        joystickBase.style.top = '';
+        joystickBase.style.position = 'absolute';
+        joystickBase.style.left = '40px';
+        joystickBase.style.bottom = '40px';
+        joystickBase.style.top = 'auto';
+        joystickBase.style.opacity = '0.4';
         joystickHandle.style.transform = 'translate(0px, 0px)';
         keys.left = false;
         keys.right = false;

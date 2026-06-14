@@ -334,8 +334,19 @@ canvas {
   z-index: 15;
 }
 
-.control-left-zone,
+.control-left-zone {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 50vw;
+  height: 70vh;
+  pointer-events: auto;
+}
+
 .control-right-zone {
+  position: absolute;
+  right: 24px;
+  bottom: 32px;
   display: flex;
   gap: 18px;
   pointer-events: auto;
@@ -383,13 +394,17 @@ canvas {
   background: radial-gradient(circle, var(--toon-yellow) 0%, var(--toon-orange) 35%, var(--toon-red) 70%, var(--toon-brown) 100%);
   border: 3px solid var(--toon-brown);
   border-radius: 50%;
-  position: relative;
+  position: absolute;
+  left: 40px;
+  bottom: 40px;
+  opacity: 0.4;
   display: flex;
   justify-content: center;
   align-items: center;
-  pointer-events: auto;
+  pointer-events: none;
   box-shadow: 0 4px 12px rgba(0,0,0,0.3);
   touch-action: none;
+  transition: opacity 0.2s;
 }
 
 /* Joystick Handle - Red Shiny Cartoon Knob */
