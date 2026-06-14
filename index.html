@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AlphaDino - Plataforma de Jogos Neon Platformer</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#080813">
+  <link rel="apple-touch-icon" href="icon-192.png">
+</head>
+<body>
+  <div class="container">
+    
+    <header>
+      <div class="logo-container">
+        <h1 class="logo-main" id="platform-title">AlphaDino</h1>
+        <div class="logo-sub">Arcade Platform</div>
+      </div>
+    </header>
+
+    <main class="dashboard-grid">
+      
+      <!-- Character Selection & Name Setup -->
+      <section class="card" aria-labelledby="char-setup-title">
+        <h2 id="char-setup-title" class="card-title">
+          <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A6,6 0 0,1 18,10C18,12.91 15.96,15.35 13.14,15.88L13.88,18.64L12,19.14L10.12,18.64L10.86,15.88C8.04,15.35 6,12.91 6,10A6,6 0 0,1 12,4M12,6A4,4 0 0,0 8,10C8,12.2 9.8,14 12,14A4,4 0 0,0 16,10A4,4 0 0,0 12,6Z" />
+          </svg>
+          Iniciar Partida
+        </h2>
+        
+        <!-- Player Name Setup -->
+        <div class="setup-group">
+          <label class="setup-label" for="player-name">Seu Nome / Nickname</label>
+          <input type="text" id="player-name" class="input-glow" placeholder="Digite seu nome..." maxlength="15" autocomplete="off">
+        </div>
+
+        <!-- Character Carousel -->
+        <div class="character-select-container">
+          <label class="setup-label">Escolha seu Dinossauro</label>
+          <div class="character-carousel" id="char-carousel">
+            
+            <!-- Character 1: Raptor (Green) -->
+            <div class="character-card selected" data-char="raptor" style="--selected-color: var(--neon-green); --selected-color-rgb: 57, 255, 20;">
+              <div class="character-sprite">
+                <svg viewBox="0 0 64 64">
+                  <!-- Green Cyber Raptor -->
+                  <rect x="24" y="12" width="24" height="12" fill="#39ff14" />
+                  <rect x="40" y="16" width="12" height="8" fill="#1b8a0a" />
+                  <rect x="44" y="12" width="4" height="4" fill="#ff0000" /> <!-- Red eye -->
+                  <rect x="28" y="24" width="20" height="20" fill="#39ff14" />
+                  <rect x="20" y="28" width="8" height="12" fill="#1b8a0a" />
+                  <rect x="4" y="24" width="16" height="8" fill="#39ff14" /> <!-- Tail -->
+                  <rect x="8" y="20" width="8" height="4" fill="#1b8a0a" />
+                  <!-- Fire shoot weapon attachment -->
+                  <rect x="40" y="32" width="12" height="4" fill="#ff7700" />
+                  <!-- Legs -->
+                  <rect x="24" y="44" width="6" height="12" fill="#1b8a0a" />
+                  <rect x="34" y="44" width="6" height="12" fill="#1b8a0a" />
+                  <rect x="20" y="56" width="10" height="4" fill="#39ff14" />
+                  <rect x="34" y="56" width="10" height="4" fill="#39ff14" />
+                </svg>
+              </div>
+              <div class="character-name">Raptor</div>
+              <span class="character-power-badge">Fireball</span>
+              <div class="character-power-desc">Atira bolas de fogo de alta velocidade (Tecla X ou Botão Especial).</div>
+            </div>
+
+            <!-- Character 2: Ptera (Blue) -->
+            <div class="character-card" data-char="ptera" style="--selected-color: var(--neon-cyan); --selected-color-rgb: 0, 240, 255;">
+              <div class="character-sprite">
+                <svg viewBox="0 0 64 64">
+                  <!-- Blue Flying Ptera -->
+                  <rect x="24" y="16" width="20" height="12" fill="#00f0ff" />
+                  <rect x="40" y="16" width="12" height="6" fill="#0088cc" />
+                  <rect x="44" y="18" width="4" height="4" fill="#ffea00" /> <!-- Yellow eye -->
+                  <rect x="24" y="28" width="16" height="16" fill="#00aaff" />
+                  <!-- Wings -->
+                  <path d="M 8 20 L 24 32 L 8 44 Z" fill="#00f0ff" opacity="0.8"/>
+                  <path d="M 40 32 L 56 20 L 48 44 Z" fill="#00f0ff" opacity="0.8"/>
+                  <!-- Tail -->
+                  <rect x="12" y="32" width="12" height="4" fill="#0088cc" />
+                  <!-- Small Legs -->
+                  <rect x="26" y="44" width="4" height="8" fill="#005588" />
+                  <rect x="34" y="44" width="4" height="8" fill="#005588" />
+                </svg>
+              </div>
+              <div class="character-name">Ptera</div>
+              <span class="character-power-badge">Wind Glide</span>
+              <div class="character-power-desc">Segure o Pulo no ar para planar lentamente e alcançar plataformas distantes.</div>
+            </div>
+
+            <!-- Character 3: T-Rex (Red) -->
+            <div class="character-card" data-char="trex" style="--selected-color: var(--neon-magenta); --selected-color-rgb: 255, 0, 127;">
+              <div class="character-sprite">
+                <svg viewBox="0 0 64 64">
+                  <!-- Red Shielded T-Rex -->
+                  <rect x="20" y="8" width="24" height="16" fill="#ff007f" />
+                  <rect x="36" y="12" width="12" height="8" fill="#99004c" />
+                  <rect x="40" y="8" width="4" height="4" fill="#00f0ff" /> <!-- Cyan cyber eye -->
+                  <rect x="24" y="24" width="24" height="20" fill="#ff007f" />
+                  <!-- Cybernetic Armor / Shield generator on back -->
+                  <rect x="16" y="20" width="12" height="12" fill="#00f0ff" stroke="#fff" stroke-width="1" />
+                  <rect x="12" y="28" width="16" height="4" fill="#ff007f" /> <!-- Tail -->
+                  <rect x="4" y="32" width="12" height="6" fill="#99004c" />
+                  <!-- Big Legs -->
+                  <rect x="24" y="44" width="8" height="12" fill="#99004c" />
+                  <rect x="36" y="44" width="8" height="12" fill="#99004c" />
+                  <rect x="20" y="56" width="12" height="4" fill="#ff007f" />
+                  <rect x="36" y="56" width="12" height="4" fill="#ff007f" />
+                </svg>
+              </div>
+              <div class="character-name">T-Rex</div>
+              <span class="character-power-badge">Shield</span>
+              <div class="character-power-desc">Começa com um escudo azul. O escudo recarrega a cada 30 segundos após ser destruído.</div>
+            </div>
+
+            <!-- Character 4: Trike (Yellow) -->
+            <div class="character-card" data-char="trike" style="--selected-color: var(--neon-yellow); --selected-color-rgb: 255, 234, 0;">
+              <div class="character-sprite">
+                <svg viewBox="0 0 64 64">
+                  <!-- Yellow Horned Triceratops -->
+                  <rect x="24" y="16" width="20" height="16" fill="#ffea00" />
+                  <!-- Horns -->
+                  <polygon points="44,20 52,16 44,24" fill="#ffffff" />
+                  <polygon points="40,12 48,8 40,16" fill="#ffffff" />
+                  <polygon points="42,28 48,28 42,32" fill="#ffffff" />
+                  <!-- Eye -->
+                  <rect x="34" y="20" width="4" height="4" fill="#ff007f" />
+                  <!-- Body -->
+                  <rect x="16" y="28" width="24" height="18" fill="#ccaa00" />
+                  <rect x="8" y="32" width="12" height="6" fill="#997700" /> <!-- Tail -->
+                  <!-- Heavy Legs -->
+                  <rect x="20" y="46" width="6" height="10" fill="#997700" />
+                  <rect x="32" y="46" width="6" height="10" fill="#997700" />
+                  <rect x="16" y="56" width="10" height="4" fill="#ffea00" />
+                  <rect x="30" y="56" width="10" height="4" fill="#ffea00" />
+                </svg>
+              </div>
+              <div class="character-name">Trike</div>
+              <span class="character-power-badge">Dash Attack</span>
+              <div class="character-power-desc">Dê um duplo clique no Pulo ou aperte Especial para dar um Dash e quebrar inimigos.</div>
+            </div>
+
+            <!-- Character 5: Stego (Orange) -->
+            <div class="character-card" data-char="stego" style="--selected-color: var(--neon-orange); --selected-color-rgb: 255, 103, 0;">
+              <div class="character-sprite">
+                <svg viewBox="0 0 64 64">
+                  <!-- Orange Spiked Stegosaurus -->
+                  <rect x="24" y="16" width="20" height="12" fill="#ff6700" />
+                  <rect x="40" y="20" width="10" height="6" fill="#cc5200" />
+                  <rect x="42" y="16" width="4" height="4" fill="#00f0ff" />
+                  <!-- Spikes/Plates on back -->
+                  <polygon points="20,16 24,8 28,16" fill="#ff007f" />
+                  <polygon points="28,16 32,8 36,16" fill="#ff007f" />
+                  <polygon points="36,16 40,8 44,16" fill="#ff007f" />
+                  <polygon points="12,24 16,16 20,24" fill="#ff007f" />
+                  <!-- Body -->
+                  <rect x="14" y="28" width="26" height="16" fill="#ff6700" />
+                  <rect x="4" y="24" width="12" height="6" fill="#cc5200" /> <!-- Tail -->
+                  <!-- Legs -->
+                  <rect x="18" y="44" width="6" height="12" fill="#cc5200" />
+                  <rect x="30" y="44" width="6" height="12" fill="#cc5200" />
+                  <rect x="14" y="56" width="10" height="4" fill="#ff6700" />
+                  <rect x="30" y="56" width="10" height="4" fill="#ff6700" />
+                </svg>
+              </div>
+              <div class="character-name">Stego</div>
+              <span class="character-power-badge">Magnet</span>
+              <div class="character-power-desc">Ímã permanente de curto alcance para atrair todas as moedas e itens próximos.</div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Level Selection Carousel -->
+        <div class="character-select-container" style="margin-top: 10px;">
+          <label class="setup-label">Escolha a Fase (Fases 1-5)</label>
+          <div class="character-carousel" id="level-carousel">
+            
+            <!-- Level 1 -->
+            <div class="character-card selected" data-level="1" style="--selected-color: var(--neon-green); --selected-color-rgb: 57, 255, 20;">
+              <div class="character-name">Fase 1</div>
+              <span class="character-power-badge">Grid Neon</span>
+              <div class="character-power-desc">Dificuldade: Fácil.<br>Cenário clássico de grade neon com inimigos Goombas.</div>
+            </div>
+
+            <!-- Level 2 -->
+            <div class="character-card" data-level="2" style="--selected-color: var(--neon-yellow); --selected-color-rgb: 255, 234, 0;">
+              <div class="character-name">Fase 2</div>
+              <span class="character-power-badge">Deserto Neon</span>
+              <div class="character-power-desc">Dificuldade: Média.<br>Cenário desértico com pirâmides e Koopas saltadores.</div>
+            </div>
+
+            <!-- Level 3 -->
+            <div class="character-card" data-level="3" style="--selected-color: var(--neon-purple); --selected-color-rgb: 157, 78, 221;">
+              <div class="character-name">Fase 3</div>
+              <span class="character-power-badge">Caverna Laser</span>
+              <div class="character-power-desc">Dificuldade: Média.<br>Caverna de cristais, espinhos e Besouros blindados.</div>
+            </div>
+
+            <!-- Level 4 -->
+            <div class="character-card" data-level="4" style="--selected-color: var(--neon-cyan); --selected-color-rgb: 0, 240, 255;">
+              <div class="character-name">Fase 4</div>
+              <span class="character-power-badge">Skyline Vapor</span>
+              <div class="character-power-desc">Dificuldade: Difícil.<br>Prédios altos neon e Drones voadores armados.</div>
+            </div>
+
+            <!-- Level 5 -->
+            <div class="character-card" data-level="5" style="--selected-color: var(--neon-magenta); --selected-color-rgb: 255, 0, 127;">
+              <div class="character-name">Fase 5</div>
+              <span class="character-power-badge">Core de Lava</span>
+              <div class="character-power-desc">Dificuldade: Chefe.<br>Castelo de lava neon, plataformas móveis e Chefe Bowser-Dino.</div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Start Button -->
+        <button id="btn-start" class="btn-play">
+          Jogar AlphaDino
+          <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M8,5.14V19.14L19,12.14L8,5.14Z" />
+          </svg>
+        </button>
+      </section>
+
+      <!-- Leaderboard Column -->
+      <section class="card" aria-labelledby="leaderboard-title">
+        <h2 id="leaderboard-title" class="card-title">
+          <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M12 2C6.5 2 2 6.5 2 12S6.5 22 12 22 22 17.5 22 12 17.5 2 12 2M10 17L5 12L6.41 10.59L10 14.17L17.59 6.58L19 8L10 17Z" />
+          </svg>
+          Ranking Global
+        </h2>
+        
+        <div style="overflow-x: auto;">
+          <table class="leaderboard-table" id="leaderboard-table">
+            <thead>
+              <tr>
+                <th scope="col" style="width: 10%;">Rank</th>
+                <th scope="col" style="width: 45%;">Jogador</th>
+                <th scope="col" style="width: 15%;">Moedas</th>
+                <th scope="col" style="width: 15%;">Tempo</th>
+                <th scope="col" style="width: 15%;">Pontos</th>
+              </tr>
+            </thead>
+            <tbody id="leaderboard-body">
+              <!-- Dynamically populated via JS -->
+            </tbody>
+          </table>
+          <div id="no-scores-message" class="no-scores" style="display: none;">
+            Nenhuma pontuação registrada ainda. Seja o primeiro!
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <footer>
+      <p>&copy; 2026 AlphaDino Arcade. Desenvolvido para celulares e navegadores.</p>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log('Service Worker registered:', reg.scope))
+          .catch(err => console.log('Service Worker registration failed:', err));
+      });
+    }
+  </script>
+</body>
+</html>

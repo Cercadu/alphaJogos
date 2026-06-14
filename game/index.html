@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>AlphaDino - Jogando</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="game.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+  <!-- HUD overlay -->
+  <div class="game-hud">
+    <div class="hud-item player-info">
+      <span class="hud-emoji" id="hud-char-emoji">🦖</span>
+      <span class="hud-text" id="hud-player-name">AlphaPlayer</span>
+    </div>
+    
+    <div class="hud-item score-container">
+      <span class="hud-label">Score</span>
+      <span class="hud-val neon-text-cyan" id="hud-score">00000</span>
+    </div>
+
+    <div class="hud-item coins-container">
+      <span class="hud-label">Moedas</span>
+      <span class="hud-val neon-text-yellow" id="hud-coins">🪙 00</span>
+    </div>
+
+    <div class="hud-item time-container">
+      <span class="hud-label">Tempo</span>
+      <span class="hud-val" id="hud-time">0.0s</span>
+    </div>
+    
+    <div class="hud-controls">
+      <button id="btn-audio-toggle" class="hud-btn" aria-label="Mudar áudio">
+        🔊
+      </button>
+      <button id="btn-pause-toggle" class="hud-btn" aria-label="Pausar jogo">
+        ⏸️
+      </button>
+    </div>
+  </div>
+
+  <!-- Active Powerup Bar -->
+  <div class="powerup-status-bar" id="powerup-status-bar" style="display: none;">
+    <span id="powerup-name">POWERUP</span>
+    <div class="powerup-progress-bg">
+      <div class="powerup-progress-fill" id="powerup-progress-fill"></div>
+    </div>
+  </div>
+
+  <!-- Game Canvas Container -->
+  <div class="canvas-container">
+    <canvas id="gameCanvas" width="960" height="540"></canvas>
+  </div>
+
+  <!-- Mobile Touch Controls -->
+  <div class="mobile-controls" id="mobile-controls">
+    <div class="control-left-zone" id="joystick-container">
+      <div id="joystick-base" class="joystick-base">
+        <div id="joystick-handle" class="joystick-handle"></div>
+      </div>
+    </div>
+    
+    <div class="control-right-zone">
+      <!-- Special Ability / Shoot button -->
+      <button id="ctrl-special" class="ctrl-btn btn-special" aria-label="Poder Especial">
+        <svg viewBox="0 0 24 24">
+          <path fill="currentColor" d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4M12,6A6,6 0 0,0 6,12A6,6 0 0,0 12,18A6,6 0 0,0 18,12A6,6 0 0,0 12,6M12,8A4,4 0 0,1 16,12A4,4 0 0,1 12,16A4,4 0 0,1 8,12A4,4 0 0,1 12,8Z" />
+        </svg>
+        <span id="ctrl-special-label">SP</span>
+      </button>
+      
+      <!-- Jump button -->
+      <button id="ctrl-jump" class="ctrl-btn btn-jump" aria-label="Pular">
+        <svg viewBox="0 0 24 24">
+          <path fill="currentColor" d="M7.41,15.41L12,10.83L16.59,15.41L18,14L12,8L6,14L7.41,15.41Z" />
+        </svg>
+        <span>JUMP</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Game Over Screen -->
+  <div class="overlay" id="gameover-overlay" style="display: none;">
+    <div class="card overlay-card animate-scale">
+      <h2 class="card-title text-center neon-text-magenta">FIM DE JOGO</h2>
+      <div class="gameover-stats">
+        <div class="stat-row">
+          <span>Jogador:</span>
+          <span id="go-player">AlphaPlayer</span>
+        </div>
+        <div class="stat-row">
+          <span>Personagem:</span>
+          <span id="go-char">Raptor 🦖</span>
+        </div>
+        <div class="stat-row">
+          <span>Moedas Coletadas:</span>
+          <span class="neon-text-yellow" id="go-coins">🪙 0</span>
+        </div>
+        <div class="stat-row">
+          <span>Tempo Sobrevivido:</span>
+          <span id="go-time">0.0s</span>
+        </div>
+        <div class="stat-row final-score">
+          <span>Pontuação Final:</span>
+          <span class="neon-text-cyan" id="go-score">00000</span>
+        </div>
+      </div>
+      
+      <!-- High Score Notify -->
+      <div class="new-highscore-badge" id="new-highscore-badge" style="display: none;">
+        🎉 NOVO RECORDE! 🎉
+      </div>
+      
+      <div class="overlay-buttons">
+        <button id="btn-restart" class="btn-play">
+          Jogar Novamente
+          <svg style="width:20px;height:20px" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z" />
+          </svg>
+        </button>
+        <button id="btn-home" class="btn-secondary">
+          Menu Principal
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pause Screen -->
+  <div class="overlay" id="pause-overlay" style="display: none;">
+    <div class="card overlay-card animate-scale">
+      <h2 class="card-title text-center neon-text-yellow">JOGO PAUSADO</h2>
+      <p class="text-center" style="color: var(--text-secondary);">Sua corrida está suspensa.</p>
+      
+      <div class="overlay-buttons">
+        <button id="btn-resume" class="btn-play">
+          Continuar
+          <svg style="width:20px;height:20px" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M8,5.14V19.14L19,12.14L8,5.14Z" />
+          </svg>
+        </button>
+        <button id="btn-pause-home" class="btn-secondary">
+          Menu Principal
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+</html>
