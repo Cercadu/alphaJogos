@@ -331,6 +331,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const tempCtx = canvas.getContext('2d');
     const bounds = [];
     
+    // Ignore the bottom 15% where labels are placed
+    const scanHeight = Math.floor(frameHeight * 0.85);
+    
     for (let r = 0; r < rows; r++) {
       let globalMinX = frameWidth;
       let globalMaxX = 0;
@@ -350,7 +353,7 @@ document.addEventListener('DOMContentLoaded', () => {
           break;
         }
         
-        for (let y = 0; y < frameHeight; y++) {
+        for (let y = 0; y < scanHeight; y++) {
           for (let x = 0; x < frameWidth; x++) {
             const idx = (y * frameWidth + x) * 4;
             const alpha = imgData.data[idx + 3];
@@ -366,7 +369,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       
       if (!foundAny) {
-        bounds[r] = { minX: 0, maxX: frameWidth - 1, minY: 0, maxY: frameHeight - 1, sWidth: frameWidth, sHeight: frameHeight };
+        bounds[r] = { minX: 0, maxX: frameWidth - 1, minY: 0, maxY: scanHeight - 1, sWidth: frameWidth, sHeight: scanHeight };
       } else {
         bounds[r] = {
           minX: globalMinX, maxX: globalMaxX, minY: globalMinY, maxY: globalMaxY,
@@ -388,6 +391,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const tempCtx = canvas.getContext('2d');
     const bounds = [];
     
+    // Ignore the bottom 15% where labels are placed
+    const scanHeight = Math.floor(frameHeight * 0.85);
+    
     for (let c = 0; c < cols; c++) {
       let globalMinX = frameWidth;
       let globalMaxX = 0;
@@ -407,7 +413,7 @@ document.addEventListener('DOMContentLoaded', () => {
           break;
         }
         
-        for (let y = 0; y < frameHeight; y++) {
+        for (let y = 0; y < scanHeight; y++) {
           for (let x = 0; x < frameWidth; x++) {
             const idx = (y * frameWidth + x) * 4;
             const alpha = imgData.data[idx + 3];
@@ -423,7 +429,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       
       if (!foundAny) {
-        bounds[c] = { minX: 0, maxX: frameWidth - 1, minY: 0, maxY: frameHeight - 1, sWidth: frameWidth, sHeight: frameHeight };
+        bounds[c] = { minX: 0, maxX: frameWidth - 1, minY: 0, maxY: scanHeight - 1, sWidth: frameWidth, sHeight: scanHeight };
       } else {
         bounds[c] = {
           minX: globalMinX, maxX: globalMaxX, minY: globalMinY, maxY: globalMaxY,
@@ -463,7 +469,7 @@ document.addEventListener('DOMContentLoaded', () => {
       frameWidth = image.width / 5;
       frameHeight = isEnemy ? (image.height / 2) : (image.height / 5);
       sW = frameWidth;
-      sH = frameHeight;
+      sH = Math.floor(frameHeight * 0.85); // fallback ignores bottom 15%
       sX = colIdx * frameWidth;
       sY = rowIdx * frameHeight;
     }
@@ -493,6 +499,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     ctx.restore();
   }
+
 
 
   // Entity Lists
@@ -905,7 +912,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     draw() {
       const frameWidth = assets.tiles.width / 6;
-      const frameHeight = assets.tiles.height / 3;
+      const frameHeight = assets.tiles.height / 6; // divided by 6 to crop labels and get square tiles
 
       let renderIdx = this.sliceIdx;
       // If question block was hit, draw it as an empty block (same slice as Pipe top or a dark version of Ground/Brick)
@@ -914,8 +921,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       let tileRow = 0;
-      if (selectedLevelNum === 2) tileRow = 1;
-      else if (selectedLevelNum === 3 || selectedLevelNum === 5) tileRow = 2;
+      if (selectedLevelNum === 2) tileRow = 2; // Row 2 for Desert
+      else if (selectedLevelNum === 3 || selectedLevelNum === 5) tileRow = 4; // Row 4 for Cave/Lava
 
       ctx.save();
       // Emissives on question block
@@ -933,6 +940,7 @@ document.addEventListener('DOMContentLoaded', () => {
       ctx.restore();
     }
   }
+
 
   // ----------------------------------------------------
   // COINS CLASS
@@ -955,11 +963,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     draw() {
       const frameWidth = assets.tiles.width / 6;
-      const frameHeight = assets.tiles.height / 3;
+      const frameHeight = assets.tiles.height / 6; // divided by 6 to crop labels and get square tiles
       
       let tileRow = 0;
-      if (selectedLevelNum === 2) tileRow = 1;
-      else if (selectedLevelNum === 3 || selectedLevelNum === 5) tileRow = 2;
+      if (selectedLevelNum === 2) tileRow = 2; // Row 2 for Desert
+      else if (selectedLevelNum === 3 || selectedLevelNum === 5) tileRow = 4; // Row 4 for Cave/Lava
 
       ctx.save();
       ctx.shadowBlur = 6;
@@ -974,6 +982,7 @@ document.addEventListener('DOMContentLoaded', () => {
       ctx.restore();
     }
   }
+
 
   // ----------------------------------------------------
   // FLAGPOLE CLASS (Victory Target)
@@ -990,11 +999,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     draw() {
       const frameWidth = assets.tiles.width / 6;
-      const frameHeight = assets.tiles.height / 3;
+      const frameHeight = assets.tiles.height / 6; // divided by 6 to crop labels and get square tiles
 
       let tileRow = 0;
-      if (selectedLevelNum === 2) tileRow = 1;
-      else if (selectedLevelNum === 3 || selectedLevelNum === 5) tileRow = 2;
+      if (selectedLevelNum === 2) tileRow = 2; // Row 2 for Desert
+      else if (selectedLevelNum === 3 || selectedLevelNum === 5) tileRow = 4; // Row 4 for Cave/Lava
 
       // Draw the flagpole repeating 6 times vertically
       for (let i = 0; i < 6; i++) {
@@ -1007,6 +1016,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
   }
+
 
 
   // ----------------------------------------------------
@@ -1835,6 +1845,19 @@ document.addEventListener('DOMContentLoaded', () => {
     let bgOffset = (-cameraX * 0.25) % canvas.width;
     ctx.drawImage(assets.bg, bgOffset, 0, canvas.width, canvas.height);
     ctx.drawImage(assets.bg, bgOffset + canvas.width, 0, canvas.width, canvas.height);
+
+    // Contrast tint overlay: washes out the background slightly so characters stand out!
+    let overlayColor = 'rgba(255, 255, 255, 0.4)'; // Default Forest/Skyline (white fog)
+    if (selectedLevelNum === 2) {
+      overlayColor = 'rgba(253, 240, 210, 0.35)'; // Desert (warm sand mist)
+    } else if (selectedLevelNum === 3) {
+      overlayColor = 'rgba(200, 200, 240, 0.35)'; // Cave (cool cave haze)
+    } else if (selectedLevelNum === 5) {
+      overlayColor = 'rgba(110, 40, 40, 0.35)'; // Lava (dark red heat haze)
+    }
+    ctx.fillStyle = overlayColor;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
 
     // 2. Draw Tiles, Coins, Flagpole
     collidables.forEach(block => block.draw());
