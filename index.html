@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AlphaDino - Plataforma de Jogos Neon Platformer</title>
+  <title>AlphaDino - Plataforma Cartoon Platformer</title>
   <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#080813">
+  <meta name="theme-color" content="#ff8c00">
   <link rel="apple-touch-icon" href="icon-192.png">
 </head>
 <body>
@@ -15,10 +15,10 @@
     <header>
       <div class="logo-container">
         <h1 class="logo-main" id="platform-title">AlphaDino</h1>
-        <div class="logo-sub">Arcade Platform</div>
+        <div class="logo-sub">Arcade Toons</div>
       </div>
     </header>
-
+ 
     <main class="dashboard-grid">
       
       <!-- Character Selection & Name Setup -->
@@ -35,188 +35,188 @@
           <label class="setup-label" for="player-name">Seu Nome / Nickname</label>
           <input type="text" id="player-name" class="input-glow" placeholder="Digite seu nome..." maxlength="15" autocomplete="off">
         </div>
-
+ 
         <!-- Character Carousel -->
         <div class="character-select-container">
           <label class="setup-label">Escolha seu Dinossauro</label>
           <div class="character-carousel" id="char-carousel">
             
             <!-- Character 1: Raptor (Green) -->
-            <div class="character-card selected" data-char="raptor" style="--selected-color: var(--neon-green); --selected-color-rgb: 57, 255, 20;">
+            <div class="character-card selected" data-char="raptor" style="--selected-color: var(--toon-green);">
               <div class="character-sprite">
                 <svg viewBox="0 0 64 64">
                   <!-- Green Cyber Raptor -->
-                  <rect x="24" y="12" width="24" height="12" fill="#39ff14" />
-                  <rect x="40" y="16" width="12" height="8" fill="#1b8a0a" />
+                  <rect x="24" y="12" width="24" height="12" fill="#8cd83d" />
+                  <rect x="40" y="16" width="12" height="8" fill="#5c9a20" />
                   <rect x="44" y="12" width="4" height="4" fill="#ff0000" /> <!-- Red eye -->
-                  <rect x="28" y="24" width="20" height="20" fill="#39ff14" />
-                  <rect x="20" y="28" width="8" height="12" fill="#1b8a0a" />
-                  <rect x="4" y="24" width="16" height="8" fill="#39ff14" /> <!-- Tail -->
-                  <rect x="8" y="20" width="8" height="4" fill="#1b8a0a" />
+                  <rect x="28" y="24" width="20" height="20" fill="#8cd83d" />
+                  <rect x="20" y="28" width="8" height="12" fill="#5c9a20" />
+                  <rect x="4" y="24" width="16" height="8" fill="#8cd83d" /> <!-- Tail -->
+                  <rect x="8" y="20" width="8" height="4" fill="#5c9a20" />
                   <!-- Fire shoot weapon attachment -->
                   <rect x="40" y="32" width="12" height="4" fill="#ff7700" />
                   <!-- Legs -->
-                  <rect x="24" y="44" width="6" height="12" fill="#1b8a0a" />
-                  <rect x="34" y="44" width="6" height="12" fill="#1b8a0a" />
-                  <rect x="20" y="56" width="10" height="4" fill="#39ff14" />
-                  <rect x="34" y="56" width="10" height="4" fill="#39ff14" />
+                  <rect x="24" y="44" width="6" height="12" fill="#5c9a20" />
+                  <rect x="34" y="44" width="6" height="12" fill="#5c9a20" />
+                  <rect x="20" y="56" width="10" height="4" fill="#8cd83d" />
+                  <rect x="34" y="56" width="10" height="4" fill="#8cd83d" />
                 </svg>
               </div>
               <div class="character-name">Raptor</div>
-              <span class="character-power-badge">Fireball</span>
+              <span class="character-power-badge" style="--selected-color: var(--toon-green)">Fireball</span>
               <div class="character-power-desc">Atira bolas de fogo de alta velocidade (Tecla X ou Botão Especial).</div>
             </div>
-
+ 
             <!-- Character 2: Ptera (Blue) -->
-            <div class="character-card" data-char="ptera" style="--selected-color: var(--neon-cyan); --selected-color-rgb: 0, 240, 255;">
+            <div class="character-card" data-char="ptera" style="--selected-color: var(--toon-blue);">
               <div class="character-sprite">
                 <svg viewBox="0 0 64 64">
                   <!-- Blue Flying Ptera -->
-                  <rect x="24" y="16" width="20" height="12" fill="#00f0ff" />
-                  <rect x="40" y="16" width="12" height="6" fill="#0088cc" />
-                  <rect x="44" y="18" width="4" height="4" fill="#ffea00" /> <!-- Yellow eye -->
-                  <rect x="24" y="28" width="16" height="16" fill="#00aaff" />
+                  <rect x="24" y="16" width="20" height="12" fill="#36b1e3" />
+                  <rect x="40" y="16" width="12" height="6" fill="#1b82aa" />
+                  <rect x="44" y="18" width="4" height="4" fill="#ffd700" /> <!-- Yellow eye -->
+                  <rect x="24" y="28" width="16" height="16" fill="#1b82aa" />
                   <!-- Wings -->
-                  <path d="M 8 20 L 24 32 L 8 44 Z" fill="#00f0ff" opacity="0.8"/>
-                  <path d="M 40 32 L 56 20 L 48 44 Z" fill="#00f0ff" opacity="0.8"/>
+                  <path d="M 8 20 L 24 32 L 8 44 Z" fill="#36b1e3" opacity="0.8"/>
+                  <path d="M 40 32 L 56 20 L 48 44 Z" fill="#36b1e3" opacity="0.8"/>
                   <!-- Tail -->
-                  <rect x="12" y="32" width="12" height="4" fill="#0088cc" />
+                  <rect x="12" y="32" width="12" height="4" fill="#1b82aa" />
                   <!-- Small Legs -->
-                  <rect x="26" y="44" width="4" height="8" fill="#005588" />
-                  <rect x="34" y="44" width="4" height="8" fill="#005588" />
+                  <rect x="26" y="44" width="4" height="8" fill="#0b5270" />
+                  <rect x="34" y="44" width="4" height="8" fill="#0b5270" />
                 </svg>
               </div>
               <div class="character-name">Ptera</div>
-              <span class="character-power-badge">Wind Glide</span>
+              <span class="character-power-badge" style="--selected-color: var(--toon-blue)">Wind Glide</span>
               <div class="character-power-desc">Segure o Pulo no ar para planar lentamente e alcançar plataformas distantes.</div>
             </div>
-
+ 
             <!-- Character 3: T-Rex (Red) -->
-            <div class="character-card" data-char="trex" style="--selected-color: var(--neon-magenta); --selected-color-rgb: 255, 0, 127;">
+            <div class="character-card" data-char="trex" style="--selected-color: var(--toon-red);">
               <div class="character-sprite">
                 <svg viewBox="0 0 64 64">
                   <!-- Red Shielded T-Rex -->
-                  <rect x="20" y="8" width="24" height="16" fill="#ff007f" />
-                  <rect x="36" y="12" width="12" height="8" fill="#99004c" />
-                  <rect x="40" y="8" width="4" height="4" fill="#00f0ff" /> <!-- Cyan cyber eye -->
-                  <rect x="24" y="24" width="24" height="20" fill="#ff007f" />
+                  <rect x="20" y="8" width="24" height="16" fill="#e04a1d" />
+                  <rect x="36" y="12" width="12" height="8" fill="#9e2d0d" />
+                  <rect x="40" y="8" width="4" height="4" fill="#36b1e3" /> <!-- Cyan eye -->
+                  <rect x="24" y="24" width="24" height="20" fill="#e04a1d" />
                   <!-- Cybernetic Armor / Shield generator on back -->
-                  <rect x="16" y="20" width="12" height="12" fill="#00f0ff" stroke="#fff" stroke-width="1" />
-                  <rect x="12" y="28" width="16" height="4" fill="#ff007f" /> <!-- Tail -->
-                  <rect x="4" y="32" width="12" height="6" fill="#99004c" />
+                  <rect x="16" y="20" width="12" height="12" fill="#36b1e3" stroke="#fff" stroke-width="1" />
+                  <rect x="12" y="28" width="16" height="4" fill="#e04a1d" /> <!-- Tail -->
+                  <rect x="4" y="32" width="12" height="6" fill="#9e2d0d" />
                   <!-- Big Legs -->
-                  <rect x="24" y="44" width="8" height="12" fill="#99004c" />
-                  <rect x="36" y="44" width="8" height="12" fill="#99004c" />
-                  <rect x="20" y="56" width="12" height="4" fill="#ff007f" />
-                  <rect x="36" y="56" width="12" height="4" fill="#ff007f" />
+                  <rect x="24" y="44" width="8" height="12" fill="#9e2d0d" />
+                  <rect x="36" y="44" width="8" height="12" fill="#9e2d0d" />
+                  <rect x="20" y="56" width="12" height="4" fill="#e04a1d" />
+                  <rect x="36" y="56" width="12" height="4" fill="#e04a1d" />
                 </svg>
               </div>
               <div class="character-name">T-Rex</div>
-              <span class="character-power-badge">Shield</span>
+              <span class="character-power-badge" style="--selected-color: var(--toon-red)">Shield</span>
               <div class="character-power-desc">Começa com um escudo azul. O escudo recarrega a cada 30 segundos após ser destruído.</div>
             </div>
-
+ 
             <!-- Character 4: Trike (Yellow) -->
-            <div class="character-card" data-char="trike" style="--selected-color: var(--neon-yellow); --selected-color-rgb: 255, 234, 0;">
+            <div class="character-card" data-char="trike" style="--selected-color: var(--toon-yellow);">
               <div class="character-sprite">
                 <svg viewBox="0 0 64 64">
                   <!-- Yellow Horned Triceratops -->
-                  <rect x="24" y="16" width="20" height="16" fill="#ffea00" />
+                  <rect x="24" y="16" width="20" height="16" fill="#ffd700" />
                   <!-- Horns -->
                   <polygon points="44,20 52,16 44,24" fill="#ffffff" />
                   <polygon points="40,12 48,8 40,16" fill="#ffffff" />
                   <polygon points="42,28 48,28 42,32" fill="#ffffff" />
                   <!-- Eye -->
-                  <rect x="34" y="20" width="4" height="4" fill="#ff007f" />
+                  <rect x="34" y="20" width="4" height="4" fill="#e04a1d" />
                   <!-- Body -->
-                  <rect x="16" y="28" width="24" height="18" fill="#ccaa00" />
-                  <rect x="8" y="32" width="12" height="6" fill="#997700" /> <!-- Tail -->
+                  <rect x="16" y="28" width="24" height="18" fill="#bfa200" />
+                  <rect x="8" y="32" width="12" height="6" fill="#8c7700" /> <!-- Tail -->
                   <!-- Heavy Legs -->
-                  <rect x="20" y="46" width="6" height="10" fill="#997700" />
-                  <rect x="32" y="46" width="6" height="10" fill="#997700" />
-                  <rect x="16" y="56" width="10" height="4" fill="#ffea00" />
-                  <rect x="30" y="56" width="10" height="4" fill="#ffea00" />
+                  <rect x="20" y="46" width="6" height="10" fill="#8c7700" />
+                  <rect x="32" y="46" width="6" height="10" fill="#8c7700" />
+                  <rect x="16" y="56" width="10" height="4" fill="#ffd700" />
+                  <rect x="30" y="56" width="10" height="4" fill="#ffd700" />
                 </svg>
               </div>
               <div class="character-name">Trike</div>
-              <span class="character-power-badge">Dash Attack</span>
+              <span class="character-power-badge" style="--selected-color: var(--toon-yellow)">Dash Attack</span>
               <div class="character-power-desc">Dê um duplo clique no Pulo ou aperte Especial para dar um Dash e quebrar inimigos.</div>
             </div>
-
+ 
             <!-- Character 5: Stego (Orange) -->
-            <div class="character-card" data-char="stego" style="--selected-color: var(--neon-orange); --selected-color-rgb: 255, 103, 0;">
+            <div class="character-card" data-char="stego" style="--selected-color: var(--toon-orange);">
               <div class="character-sprite">
                 <svg viewBox="0 0 64 64">
                   <!-- Orange Spiked Stegosaurus -->
-                  <rect x="24" y="16" width="20" height="12" fill="#ff6700" />
-                  <rect x="40" y="20" width="10" height="6" fill="#cc5200" />
-                  <rect x="42" y="16" width="4" height="4" fill="#00f0ff" />
+                  <rect x="24" y="16" width="20" height="12" fill="#ff8c00" />
+                  <rect x="40" y="20" width="10" height="6" fill="#c46c00" />
+                  <rect x="42" y="16" width="4" height="4" fill="#36b1e3" />
                   <!-- Spikes/Plates on back -->
-                  <polygon points="20,16 24,8 28,16" fill="#ff007f" />
-                  <polygon points="28,16 32,8 36,16" fill="#ff007f" />
-                  <polygon points="36,16 40,8 44,16" fill="#ff007f" />
-                  <polygon points="12,24 16,16 20,24" fill="#ff007f" />
+                  <polygon points="20,16 24,8 28,16" fill="#e04a1d" />
+                  <polygon points="28,16 32,8 36,16" fill="#e04a1d" />
+                  <polygon points="36,16 40,8 44,16" fill="#e04a1d" />
+                  <polygon points="12,24 16,16 20,24" fill="#e04a1d" />
                   <!-- Body -->
-                  <rect x="14" y="28" width="26" height="16" fill="#ff6700" />
-                  <rect x="4" y="24" width="12" height="6" fill="#cc5200" /> <!-- Tail -->
+                  <rect x="14" y="28" width="26" height="16" fill="#ff8c00" />
+                  <rect x="4" y="24" width="12" height="6" fill="#c46c00" /> <!-- Tail -->
                   <!-- Legs -->
-                  <rect x="18" y="44" width="6" height="12" fill="#cc5200" />
-                  <rect x="30" y="44" width="6" height="12" fill="#cc5200" />
-                  <rect x="14" y="56" width="10" height="4" fill="#ff6700" />
-                  <rect x="30" y="56" width="10" height="4" fill="#ff6700" />
+                  <rect x="18" y="44" width="6" height="12" fill="#c46c00" />
+                  <rect x="30" y="44" width="6" height="12" fill="#c46c00" />
+                  <rect x="14" y="56" width="10" height="4" fill="#ff8c00" />
+                  <rect x="30" y="56" width="10" height="4" fill="#ff8c00" />
                 </svg>
               </div>
               <div class="character-name">Stego</div>
-              <span class="character-power-badge">Magnet</span>
+              <span class="character-power-badge" style="--selected-color: var(--toon-orange)">Magnet</span>
               <div class="character-power-desc">Ímã permanente de curto alcance para atrair todas as moedas e itens próximos.</div>
             </div>
-
+ 
           </div>
         </div>
-
+ 
         <!-- Level Selection Carousel -->
         <div class="character-select-container" style="margin-top: 10px;">
           <label class="setup-label">Escolha a Fase (Fases 1-5)</label>
           <div class="character-carousel" id="level-carousel">
             
             <!-- Level 1 -->
-            <div class="character-card selected" data-level="1" style="--selected-color: var(--neon-green); --selected-color-rgb: 57, 255, 20;">
+            <div class="character-card selected" data-level="1" style="--selected-color: var(--toon-green);">
               <div class="character-name">Fase 1</div>
-              <span class="character-power-badge">Grid Neon</span>
-              <div class="character-power-desc">Dificuldade: Fácil.<br>Cenário clássico de grade neon com inimigos Goombas.</div>
+              <span class="character-power-badge" style="--selected-color: var(--toon-green)">Vale dos Toons</span>
+              <div class="character-power-desc">Dificuldade: Fácil.<br>Cenário clássico de colinas pintadas com Goombas engraçados.</div>
             </div>
-
+ 
             <!-- Level 2 -->
-            <div class="character-card" data-level="2" style="--selected-color: var(--neon-yellow); --selected-color-rgb: 255, 234, 0;">
+            <div class="character-card" data-level="2" style="--selected-color: var(--toon-yellow);">
               <div class="character-name">Fase 2</div>
-              <span class="character-power-badge">Deserto Neon</span>
-              <div class="character-power-desc">Dificuldade: Média.<br>Cenário desértico com pirâmides e Koopas saltadores.</div>
+              <span class="character-power-badge" style="--selected-color: var(--toon-yellow)">Canyon do Coiote</span>
+              <div class="character-power-desc">Dificuldade: Média.<br>Deserto clássico de cânion com cactos, dinamites e Koopas.</div>
             </div>
-
+ 
             <!-- Level 3 -->
-            <div class="character-card" data-level="3" style="--selected-color: var(--neon-purple); --selected-color-rgb: 157, 78, 221;">
+            <div class="character-card" data-level="3" style="--selected-color: var(--toon-purple);">
               <div class="character-name">Fase 3</div>
-              <span class="character-power-badge">Caverna Laser</span>
-              <div class="character-power-desc">Dificuldade: Média.<br>Caverna de cristais, espinhos e Besouros blindados.</div>
+              <span class="character-power-badge" style="--selected-color: var(--toon-purple)">Mina do Gaguinho</span>
+              <div class="character-power-desc">Dificuldade: Média.<br>Mina de carvão com cristais cintilantes e Besouros blindados.</div>
             </div>
-
+ 
             <!-- Level 4 -->
-            <div class="character-card" data-level="4" style="--selected-color: var(--neon-cyan); --selected-color-rgb: 0, 240, 255;">
+            <div class="character-card" data-level="4" style="--selected-color: var(--toon-blue);">
               <div class="character-name">Fase 4</div>
-              <span class="character-power-badge">Skyline Vapor</span>
-              <div class="character-power-desc">Dificuldade: Difícil.<br>Prédios altos neon e Drones voadores armados.</div>
+              <span class="character-power-badge" style="--selected-color: var(--toon-blue)">Cidade Maluca</span>
+              <div class="character-power-desc">Dificuldade: Difícil.<br>Prédios malucos com chaminés curvas e Drones atrapalhados.</div>
             </div>
-
+ 
             <!-- Level 5 -->
-            <div class="character-card" data-level="5" style="--selected-color: var(--neon-magenta); --selected-color-rgb: 255, 0, 127;">
+            <div class="character-card" data-level="5" style="--selected-color: var(--toon-red);">
               <div class="character-name">Fase 5</div>
-              <span class="character-power-badge">Core de Lava</span>
-              <div class="character-power-desc">Dificuldade: Chefe.<br>Castelo de lava neon, plataformas móveis e Chefe Bowser-Dino.</div>
+              <span class="character-power-badge" style="--selected-color: var(--toon-red)">Vulcão do Taz</span>
+              <div class="character-power-desc">Dificuldade: Chefe.<br>Castelo de lava fumegante, pontes de madeira e Bowser Boss cartoon.</div>
             </div>
-
+ 
           </div>
         </div>
-
+ 
         <!-- Start Button -->
         <button id="btn-start" class="btn-play">
           Jogar AlphaDino
@@ -225,6 +225,7 @@
           </svg>
         </button>
       </section>
+
 
       <!-- Leaderboard Column -->
       <section class="card" aria-labelledby="leaderboard-title">

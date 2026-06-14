@@ -1,9 +1,10 @@
-// AlphaDino 3D WebGL Game Engine (Three.js)
+// AlphaDino 2D Cartoon Game Engine (Looney Tunes Style)
 
 document.addEventListener('DOMContentLoaded', () => {
-  // ----------------------------------------------------
-  // SESSION DATA & STATE
-  // ----------------------------------------------------
+  const canvas = document.getElementById('gameCanvas');
+  const ctx = canvas.getContext('2d');
+
+  // Load Session Data
   const playerName = sessionStorage.getItem('alphadino_active_player') || 'AlphaPlayer';
   const charType = sessionStorage.getItem('alphadino_active_char') || 'raptor';
   const selectedLevelNum = parseInt(sessionStorage.getItem('alphadino_active_level') || '1', 10);
@@ -119,121 +120,49 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ----------------------------------------------------
-  // THREE.JS INITIALIZATION
+  // IMAGE ASSETS LOADING (Looney Tunes sprites)
   // ----------------------------------------------------
-  const container = document.querySelector('.canvas-container');
-  // Clear HTML5 Canvas
-  container.innerHTML = '';
+  const assets = {
+    dinos: new Image(),
+    enemies: new Image(),
+    tiles: new Image(),
+    bg: new Image()
+  };
+
+  // Set Sources
+  assets.dinos.src = '../assets/characters/dinos.png';
+  assets.enemies.src = '../assets/enemies/enemies.png';
+  assets.tiles.src = '../assets/tiles/tiles.png';
   
-  const scene = new THREE.Scene();
-  
-  // Set Scene Background based on Level
   const levelBgs = {
-    1: 0x050510, // Deep Cyber space
-    2: 0x180d05, // Dusty Sunset Orange
-    3: 0x070212, // Dark Crystal Purple
-    4: 0x050c18, // Midnight City Cyan
-    5: 0x150202  // Hot Castle Lava Red
+    1: '../assets/backgrounds/bg_forest.png',
+    2: '../assets/backgrounds/bg_desert.png',
+    3: '../assets/backgrounds/bg_cave.png',
+    4: '../assets/backgrounds/bg_forest.png',
+    5: '../assets/backgrounds/bg_lava.png'
   };
-  scene.background = new THREE.Color(levelBgs[selectedLevelNum] || 0x050510);
-  scene.fog = new THREE.FogExp2(scene.background, 0.04);
+  assets.bg.src = levelBgs[selectedLevelNum] || levelBgs[1];
 
-  // Camera Setup
-  const camera = new THREE.PerspectiveCamera(50, 16/9, 0.1, 1000);
+  let assetsLoaded = 0;
+  const totalAssets = 4;
   
-  // Renderer Setup
-  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
-  renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  renderer.setSize(container.clientWidth, container.clientWidth * (9/16));
-  container.appendChild(renderer.domElement);
-
-  // Resize handler
-  window.addEventListener('resize', () => {
-    const w = container.clientWidth;
-    const h = w * (9/16);
-    renderer.setSize(w, h);
-    camera.aspect = w / h;
-    camera.updateProjectionMatrix();
-  });
-
-  // Lighting
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.45);
-  scene.add(ambientLight);
-
-  const sunLight = new THREE.DirectionalLight(0xffffff, 0.85);
-  sunLight.position.set(10, 20, 15);
-  sunLight.castShadow = true;
-  sunLight.shadow.mapSize.width = 1024;
-  sunLight.shadow.mapSize.height = 1024;
-  sunLight.shadow.camera.near = 0.5;
-  sunLight.shadow.camera.far = 40;
-  
-  const dRange = 12;
-  sunLight.shadow.camera.left = -dRange;
-  sunLight.shadow.camera.right = dRange;
-  sunLight.shadow.camera.top = dRange;
-  sunLight.shadow.camera.bottom = -dRange;
-  scene.add(sunLight);
-
-  // Point lights for Cyber atmosphere
-  const pointLightColors = {
-    1: 0x00f0ff,
-    2: 0xffea00,
-    3: 0x9d4edd,
-    4: 0x00f0ff,
-    5: 0xff0055
-  };
-  const neonLight = new THREE.PointLight(pointLightColors[selectedLevelNum] || 0x00f0ff, 1.5, 30);
-  scene.add(neonLight);
-
-  // ----------------------------------------------------
-  // CHARACTERS & STYLES (Voxel builder helper)
-  // ----------------------------------------------------
-  const charThemes = {
-    raptor: { primary: 0x39ff14, secondary: 0x1b8a0a, eye: 0xff0000 },
-    ptera: { primary: 0x00f0ff, secondary: 0x0088cc, eye: 0xffea00 },
-    trex: { primary: 0xff007f, secondary: 0x99004c, eye: 0x00f0ff },
-    trike: { primary: 0xffea00, secondary: 0xccaa00, eye: 0xff007f },
-    stego: { primary: 0xff6700, secondary: 0xcc5200, eye: 0x00f0ff }
-  };
-  const theme = charThemes[charType] || charThemes.raptor;
-
-  function createVoxelMesh(sizeX, sizeY, sizeZ, colorHex, opacity = 1) {
-    const geo = new THREE.BoxGeometry(sizeX, sizeY, sizeZ);
-    const mat = new THREE.MeshStandardMaterial({
-      color: colorHex,
-      roughness: 0.2,
-      metalness: 0.1,
-      transparent: opacity < 1,
-      opacity: opacity
-    });
-    const mesh = new THREE.Mesh(geo, mat);
-    mesh.castShadow = true;
-    mesh.receiveShadow = true;
-    return mesh;
+  function checkAssetsLoaded() {
+    assetsLoaded++;
+    if (assetsLoaded === totalAssets) {
+      // Start Game Loops
+      requestAnimationFrame(gameLoop);
+    }
   }
 
+  assets.dinos.onload = checkAssetsLoaded;
+  assets.enemies.onload = checkAssetsLoaded;
+  assets.tiles.onload = checkAssetsLoaded;
+  assets.bg.onload = checkAssetsLoaded;
+
   // ----------------------------------------------------
-  // LEVEL LAYOUT STRUCTURES (Grid Maps)
+  // LEVEL GRID CONFIGURATION (12 rows high, 120 cols wide)
   // ----------------------------------------------------
-  // Legend:
-  // 'G' = Ground Brick Block
-  // 'B' = Destructible Brick Block
-  // 'Q' = Question Mark Block (Spawns Coins)
-  // 'M' = Question Block (Spawns Mushroom)
-  // 'F' = Question Block (Spawns FireFlower)
-  // 'S' = Question Block (Spawns Star)
-  // 'A' = Question Block (Spawns Magnet)
-  // 'C' = Spin Coin
-  // 'P' = Pipeline block (solid green barrier)
-  // 'E' = Goomba enemy (standard)
-  // 'K' = Koopa enemy (hopping)
-  // 'T' = Cave Beetle (Level 3 - spiky top)
-  // 'D' = Cyber Drone (Level 4 - flying)
-  // 'X' = Bowser Boss (Level 5 - shoots fireballs)
-  // 'H' = Moving Platform
-  // 'L' = Level Flagpole (Goal)
+  const BLOCK_SIZE = 40;
   
   const levelMaps = {
     1: [
@@ -320,19 +249,19 @@ document.addEventListener('DOMContentLoaded', () => {
   let coins = 0;
   let timeElapsed = 0;
   let levelComplete = false;
-  let victorySequenceTimer = 0;
   let shieldCooldownTimer = 0;
   
-  // Entity arrays
-  const collidables = []; // platforms, pipes, blocks
-  const interactiveBlocks = []; // bricks, ? blocks
+  let cameraX = 0;
+
+  // Entity Lists
+  const collidables = [];
+  const interactiveBlocks = [];
   let coinsList = [];
   let enemies = [];
   let items = [];
   let projectiles = [];
-  const particles = [];
-  
-  // Keys object
+  let particles = [];
+
   const keys = {
     left: false,
     right: false,
@@ -340,101 +269,32 @@ document.addEventListener('DOMContentLoaded', () => {
     special: false
   };
 
-  // ----------------------------------------------------
-  // VOXEL DINO MESH GENERATION (Crossy Road Style)
-  // ----------------------------------------------------
-  class VoxelDino {
-    constructor() {
-      this.group = new THREE.Group();
-      
-      // Voxel Parts
-      this.body = createVoxelMesh(0.8, 0.9, 0.7, theme.primary);
-      this.body.position.y = 0.45;
-      this.group.add(this.body);
-      
-      // Head
-      this.head = createVoxelMesh(0.65, 0.5, 0.6, theme.primary);
-      this.head.position.set(0.25, 0.9, 0);
-      this.group.add(this.head);
-      
-      // Visor/Eye (Cyber)
-      this.eye = createVoxelMesh(0.2, 0.1, 0.62, theme.eye);
-      this.eye.position.set(0.4, 0.95, 0);
-      this.group.add(this.eye);
-      
-      // Tail
-      this.tail = createVoxelMesh(0.4, 0.3, 0.3, theme.primary);
-      this.tail.position.set(-0.5, 0.25, 0);
-      this.group.add(this.tail);
-      
-      // Limbs
-      this.legLeft = createVoxelMesh(0.25, 0.4, 0.2, theme.secondary);
-      this.legLeft.position.set(-0.15, 0.1, 0.22);
-      this.group.add(this.legLeft);
-      
-      this.legRight = createVoxelMesh(0.25, 0.4, 0.2, theme.secondary);
-      this.legRight.position.set(0.15, 0.1, -0.22);
-      this.group.add(this.legRight);
-
-      // Character-specific Voxel Accessories
-      if (charType === 'ptera') {
-        // Wings
-        this.wingLeft = createVoxelMesh(0.1, 0.5, 0.8, theme.secondary);
-        this.wingLeft.position.set(-0.1, 0.6, 0.55);
-        this.wingLeft.rotation.z = Math.PI / 12;
-        this.group.add(this.wingLeft);
-        
-        this.wingRight = createVoxelMesh(0.1, 0.5, 0.8, theme.secondary);
-        this.wingRight.position.set(-0.1, 0.6, -0.55);
-        this.wingRight.rotation.z = -Math.PI / 12;
-        this.group.add(this.wingRight);
-      }
-      
-      if (charType === 'trike') {
-        // Horns
-        this.horn1 = createVoxelMesh(0.15, 0.3, 0.1, 0xffffff);
-        this.horn1.position.set(0.5, 1.1, 0.2);
-        this.horn1.rotation.z = -Math.PI / 6;
-        this.group.add(this.horn1);
-        
-        this.horn2 = createVoxelMesh(0.15, 0.3, 0.1, 0xffffff);
-        this.horn2.position.set(0.5, 1.1, -0.2);
-        this.horn2.rotation.z = -Math.PI / 6;
-        this.group.add(this.horn2);
-      }
-      
-      if (charType === 'stego') {
-        // Back spikes
-        this.spike1 = createVoxelMesh(0.2, 0.2, 0.2, 0xff007f);
-        this.spike1.position.set(-0.1, 1.05, 0);
-        this.group.add(this.spike1);
-        
-        this.spike2 = createVoxelMesh(0.2, 0.2, 0.2, 0xff007f);
-        this.spike2.position.set(-0.4, 0.8, 0);
-        this.group.add(this.spike2);
-      }
-      
-      scene.add(this.group);
-    }
-  }
+  // Dino Sprite sheet slice indices
+  const dinoSliceIndices = {
+    raptor: 0,
+    ptera: 1,
+    trex: 2,
+    trike: 3,
+    stego: 4
+  };
+  const activeDinoIdx = dinoSliceIndices[charType] || 0;
 
   // ----------------------------------------------------
-  // PLAYER CLASS (3D platformer logic)
+  // PLAYER CLASS
   // ----------------------------------------------------
   class Player {
     constructor() {
-      this.voxel = new VoxelDino();
-      this.x = 2.0;
-      this.y = 3.0; // starts falling
+      this.x = 80;
+      this.y = 100;
       this.vx = 0;
       this.vy = 0;
-      this.width = 0.9;
-      this.height = 1.3;
+      this.width = 40;
+      this.height = 54;
       
       this.onGround = false;
-      this.gravity = 0.012;
-      this.jumpPower = 0.26;
-      this.walkSpeed = 0.08;
+      this.gravity = 0.55;
+      this.jumpPower = -12;
+      this.walkSpeed = 3.6;
       
       this.life = 1;
       this.hasShield = (charType === 'trex');
@@ -449,40 +309,38 @@ document.addEventListener('DOMContentLoaded', () => {
       this.jumpHoldTimer = 0;
       this.isGliding = false;
       
-      // Voxel references
-      this.legCycle = 0;
+      this.facingRight = true;
+      this.walkFrameCycle = 0;
     }
 
     update(dt) {
-      // 1. Decrement cooldowns
       if (this.shootCooldown > 0) this.shootCooldown -= dt;
       if (this.dashCooldown > 0) this.dashCooldown -= dt;
-      
-      // Shield regeneration (T-Rex power)
+
+      // Shield recharge (T-Rex)
       if (charType === 'trex' && !this.hasShield) {
         shieldCooldownTimer += dt;
         if (shieldCooldownTimer >= 30000) {
           this.hasShield = true;
           shieldCooldownTimer = 0;
           sounds.powerup();
-          createImpactExplosion(this.x, this.y + 0.5, 0x00f0ff);
+          createImpactExplosion(this.x + this.width/2, this.y + this.height/2, '#00f0ff');
         }
       }
 
-      // 2. Dash behavior (Trike power)
+      // Dash (Trike)
       if (this.isDashing) {
         this.dashTimer += dt;
         if (this.dashTimer >= 200) {
           this.isDashing = false;
         } else {
-          // Trail particles
           if (Math.random() < 0.4) {
-            particles.push(new Particle(this.x, this.y + Math.random() * 0.8, theme.primary));
+            particles.push(new Particle(this.x + Math.random() * this.width, this.y + Math.random() * this.height, '#ffea00'));
           }
         }
       }
 
-      // 3. Powerup timer update
+      // Powerup Timers
       if (this.powerup) {
         this.powerupDuration -= dt;
         if (this.powerupDuration <= 0) {
@@ -490,26 +348,27 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
 
-      // 4. Handle horizontal movement input
+      // Horizontal Walking Input
       if (!levelComplete && gameState === 'PLAYING') {
         if (this.isDashing) {
-          // Dash carries high velocity
-          this.vx = 0.28 * (this.voxel.group.rotation.y > 0 ? -1 : 1);
+          this.vx = 11 * (this.facingRight ? 1 : -1);
         } else {
           if (keys.left) {
             this.vx = -this.walkSpeed;
-            this.voxel.group.rotation.y = Math.PI; // Face Left
+            this.facingRight = false;
+            this.walkFrameCycle += 0.2;
           } else if (keys.right) {
             this.vx = this.walkSpeed;
-            this.voxel.group.rotation.y = 0; // Face Right
+            this.facingRight = true;
+            this.walkFrameCycle += 0.2;
           } else {
-            this.vx *= 0.75; // deceleration drag
-            if (Math.abs(this.vx) < 0.005) this.vx = 0;
+            this.vx *= 0.75;
+            if (Math.abs(this.vx) < 0.1) this.vx = 0;
           }
         }
       }
 
-      // 5. Jump & Glide mechanics
+      // Jump & Glide (Ptera)
       if (keys.jump && !levelComplete && gameState === 'PLAYING') {
         if (this.onGround) {
           this.vy = this.jumpPower;
@@ -521,13 +380,13 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
           this.jumpHoldTimer += dt;
           if (this.jumpHoldTimer < 180) {
-            this.vy += 0.005; // float slightly higher on hold
+            this.vy -= 0.18;
           }
-          if (charType === 'ptera' && this.vy < 0) {
+          if (charType === 'ptera' && this.vy > 0) {
             this.isGliding = true;
-            this.vy = -0.03; // cap descent (glide)
-            if (Math.random() < 0.2) {
-              particles.push(new Particle(this.x - 0.3, this.y + 0.5, 0x00f0ff));
+            this.vy = 1.2; // glide terminal velocity
+            if (Math.random() < 0.15) {
+              particles.push(new Particle(this.x, this.y + this.height/2, '#00f0ff'));
             }
           }
         }
@@ -535,69 +394,47 @@ document.addEventListener('DOMContentLoaded', () => {
         this.isGliding = false;
       }
 
-      // 6. Apply gravity
+      // Gravity
       if (!this.onGround && !this.isGliding && !this.isDashing) {
-        this.vy -= this.gravity;
+        this.vy += this.gravity;
       }
 
-      // 7. Update coordinates
+      // Apply positions
       this.x += this.vx;
       this.y += this.vy;
 
-      // 8. Block screen bounds
-      if (this.x < 0.5) {
-        this.x = 0.5;
-        this.vx = 0;
-      }
-      if (this.x > gridCols - 0.5) {
-        this.x = gridCols - 0.5;
-        this.vx = 0;
+      // Screen bounds
+      if (this.x < 10) this.x = 10;
+      if (this.x > (gridCols * BLOCK_SIZE) - this.width - 10) {
+        this.x = (gridCols * BLOCK_SIZE) - this.width - 10;
       }
 
-      // 9. Leg cycle animation
-      if (Math.abs(this.vx) > 0.01 && this.onGround) {
-        this.legCycle += 0.25;
-        this.voxel.legLeft.position.y = 0.1 + Math.sin(this.legCycle) * 0.08;
-        this.voxel.legRight.position.y = 0.1 - Math.sin(this.legCycle) * 0.08;
-      } else {
-        this.voxel.legLeft.position.y = 0.1;
-        this.voxel.legRight.position.y = 0.1;
-      }
-
-      // 10. Wing animation (Ptera)
-      if (charType === 'ptera' && this.voxel.wingLeft) {
-        if (this.isGliding) {
-          const flap = Math.sin(Date.now() / 80) * 0.4;
-          this.voxel.wingLeft.rotation.z = Math.PI/12 + flap;
-          this.voxel.wingRight.rotation.z = -Math.PI/12 - flap;
-        } else {
-          this.voxel.wingLeft.rotation.z = Math.PI/12;
-          this.voxel.wingRight.rotation.z = -Math.PI/12;
-        }
-      }
-
-      // 11. Scale powerup sizes
+      // Power-up modifications
       if (this.powerup === 'mushroom') {
-        this.voxel.group.scale.set(1.4, 1.4, 1.4);
-        this.width = 1.26;
-        this.height = 1.82;
+        this.width = 56;
+        this.height = 75;
       } else {
-        this.voxel.group.scale.set(1.0, 1.0, 1.0);
-        this.width = 0.9;
-        this.height = 1.3;
+        this.width = 40;
+        this.height = 54;
       }
 
-      // Sync 3D position
-      this.voxel.group.position.set(this.x, this.y, 0);
-
-      // Check Special Ability Trigger
+      // Check Special Ability
       if (keys.special && !levelComplete && gameState === 'PLAYING') {
         this.useSpecialAbility();
         keys.special = false;
       }
 
-      // Lava Pit Death Check
-      if (this.y < -3.0) {
+      // Star trail
+      if (this.powerup === 'star') {
+        const colors = ['#ff007f', '#00f0ff', '#ffea00', '#39ff14', '#ff6700'];
+        const rColor = colors[Math.floor(Date.now() / 40) % colors.length];
+        if (Math.random() < 0.5) {
+          particles.push(new Particle(this.x + Math.random() * this.width, this.y + Math.random() * this.height, rColor));
+        }
+      }
+
+      // Out of bounds check
+      if (this.y > canvas.height + 50) {
         triggerDeath();
       }
     }
@@ -605,8 +442,8 @@ document.addEventListener('DOMContentLoaded', () => {
     useSpecialAbility() {
       if (charType === 'raptor' || this.powerup === 'fireflower') {
         if (this.shootCooldown <= 0) {
-          const dir = this.voxel.group.rotation.y > 0 ? -1 : 1;
-          projectiles.push(new Projectile(this.x + dir * 0.6, this.y + 0.6, dir));
+          const dir = this.facingRight ? 1 : -1;
+          projectiles.push(new Projectile(this.x + (this.facingRight ? this.width : -16), this.y + this.height/3, dir));
           sounds.shoot();
           this.shootCooldown = 600;
         }
@@ -617,8 +454,8 @@ document.addEventListener('DOMContentLoaded', () => {
           this.dashTimer = 0;
           this.dashCooldown = 3000;
           sounds.dash();
-          triggerVibrate([40, 20, 40]);
-          createImpactExplosion(this.x, this.y + 0.5, 0xffea00);
+          triggerVibrate([40,20,40]);
+          createImpactExplosion(this.x + (this.facingRight ? this.width : 0), this.y + this.height/2, '#ffea00');
         }
       }
     }
@@ -629,25 +466,25 @@ document.addEventListener('DOMContentLoaded', () => {
         this.powerup = 'mushroom';
         this.life = 2;
         this.powerupDuration = this.powerupMaxDuration;
-        createImpactExplosion(this.x, this.y + 0.5, 0xff0055);
-      } 
+        createImpactExplosion(this.x + this.width/2, this.y + this.height/2, '#ff0055');
+      }
       else if (type === 'fireflower') {
         sounds.powerup();
         this.powerup = 'fireflower';
         this.powerupDuration = this.powerupMaxDuration;
-        createImpactExplosion(this.x, this.y + 0.5, 0xffaa00);
-      } 
+        createImpactExplosion(this.x + this.width/2, this.y + this.height/2, '#ffaa00');
+      }
       else if (type === 'star') {
         sounds.powerup();
         this.powerup = 'star';
         this.powerupDuration = 8000;
-        createImpactExplosion(this.x, this.y + 0.5, 0x00f0ff);
-      } 
+        createImpactExplosion(this.x + this.width/2, this.y + this.height/2, '#00f0ff');
+      }
       else if (type === 'magnet') {
         sounds.powerup();
         this.powerup = 'magnet';
         this.powerupDuration = 12000;
-        createImpactExplosion(this.x, this.y + 0.5, 0x00f0ff);
+        createImpactExplosion(this.x + this.width/2, this.y + this.height/2, '#00f0ff');
       }
     }
 
@@ -663,92 +500,118 @@ document.addEventListener('DOMContentLoaded', () => {
         this.hasShield = false;
         shieldCooldownTimer = 0;
         sounds.hit();
-        triggerVibrate([100, 50, 100]);
-        createImpactExplosion(this.x, this.y + 0.5, 0x00f0ff);
+        triggerVibrate([100,50,100]);
+        createImpactExplosion(this.x + this.width/2, this.y + this.height/2, '#00f0ff');
         return;
       }
       if (this.life > 1) {
         this.removePowerup();
         sounds.hit();
-        triggerVibrate([80, 80]);
+        triggerVibrate([80,80]);
         return;
       }
       triggerDeath();
     }
 
-    destroy() {
-      scene.remove(this.voxel.group);
+    draw() {
+      ctx.save();
+
+      // Flip character horizontally if facing left
+      let drawX = this.x - cameraX;
+      let drawY = this.y;
+      
+      const frameWidth = assets.dinos.width / 5;
+      const frameHeight = assets.dinos.height;
+
+      // Add walk cycle frame tilt
+      let walkRotation = 0;
+      if (Math.abs(this.vx) > 0.1 && this.onGround) {
+        walkRotation = Math.sin(this.walkFrameCycle) * 0.08;
+      }
+
+      ctx.translate(drawX + this.width/2, drawY + this.height/2);
+      ctx.rotate(walkRotation);
+
+      if (!this.facingRight) {
+        ctx.scale(-1, 1);
+      }
+
+      // Star rainbow color overlay filter
+      if (this.powerup === 'star') {
+        ctx.shadowBlur = 15;
+        const colors = ['#ff007f', '#00f0ff', '#ffea00', '#39ff14', '#ff6700'];
+        ctx.shadowColor = colors[Math.floor(Date.now() / 80) % colors.length];
+      } else if (this.powerup === 'fireflower') {
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = '#ff5500';
+      }
+
+      ctx.drawImage(
+        assets.dinos,
+        activeDinoIdx * frameWidth, 0, frameWidth, frameHeight, // Slice
+        -this.width/2, -this.height/2, this.width, this.height // Draw
+      );
+
+      ctx.restore();
+
+      // Draw active shield bubble
+      if (this.hasShield) {
+        ctx.save();
+        ctx.strokeStyle = '#00f0ff';
+        ctx.lineWidth = 3;
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = '#00f0ff';
+        ctx.beginPath();
+        ctx.arc(this.x + this.width/2 - cameraX, this.y + this.height/2, Math.max(this.width, this.height)*0.7, 0, Math.PI*2);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // Draw magnet ring
+      if (this.powerup === 'magnet' || charType === 'stego') {
+        ctx.save();
+        ctx.strokeStyle = 'rgba(255, 234, 0, 0.2)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(this.x + this.width/2 - cameraX, this.y + this.height/2, (this.powerup === 'magnet' ? 140 : 60), 0, Math.PI*2);
+        ctx.stroke();
+        ctx.restore();
+      }
     }
   }
 
   let player = new Player();
 
   // ----------------------------------------------------
-  // 3D ENTITY CLASSES (Blocks, Coins, Flags, etc.)
+  // BLOCKS CLASS
   // ----------------------------------------------------
-  class VoxelBlock {
+  class Block {
     constructor(gridX, gridY, type, itemType = 'coin') {
       this.gridX = gridX;
       this.gridY = gridY;
-      this.x = gridX;
-      this.y = gridY;
-      this.type = type; // 'brick', 'question', 'solid', 'pipe'
+      this.x = gridX * BLOCK_SIZE;
+      this.y = gridY * BLOCK_SIZE;
+      this.type = type; // 'ground', 'brick', 'question', 'pipe'
       this.itemType = itemType;
-      this.width = 1.0;
-      this.height = 1.0;
+      this.width = BLOCK_SIZE;
+      this.height = BLOCK_SIZE;
+      
       this.hit = false;
       this.hitOffset = 0;
       this.hitSpeed = 0;
-      
-      // Create 3D Mesh
-      if (type === 'solid') {
-        // Ground Grid Block
-        let gColor = 0x22223b;
-        if (selectedLevelNum === 2) gColor = 0xc27c38; // Desert
-        if (selectedLevelNum === 3) gColor = 0x3c165a; // Crystals
-        if (selectedLevelNum === 4) gColor = 0x1d3557; // Skyline
-        if (selectedLevelNum === 5) gColor = 0x471212; // Lava Castle
-        
-        this.mesh = createVoxelMesh(1.0, 1.0, 1.0, gColor);
-        // Add glowing neon strip on top of ground blocks
-        const wire = new THREE.LineSegments(
-          new THREE.EdgesGeometry(this.mesh.geometry),
-          new THREE.LineBasicMaterial({ color: pointLightColors[selectedLevelNum] || 0x00f0ff })
-        );
-        this.mesh.add(wire);
-      } 
-      else if (type === 'pipe') {
-        // Cyber Green pipe mesh
-        const pipeGeo = new THREE.CylinderGeometry(0.5, 0.5, 1.0, 8);
-        const pipeMat = new THREE.MeshStandardMaterial({ color: 0x1b8a0a, roughness: 0.1 });
-        this.mesh = new THREE.Mesh(pipeGeo, pipeMat);
-        this.mesh.castShadow = true;
-        this.mesh.receiveShadow = true;
-      }
-      else if (type === 'brick') {
-        // Cyber Brick (Glowing magenta seams)
-        this.mesh = createVoxelMesh(1.0, 1.0, 1.0, 0x8b2e00);
-        const wire = new THREE.LineSegments(
-          new THREE.EdgesGeometry(this.mesh.geometry),
-          new THREE.LineBasicMaterial({ color: 0xff007f })
-        );
-        this.mesh.add(wire);
-      } 
-      else if (type === 'question') {
-        // Glowing gold question mark box
-        this.mesh = createVoxelMesh(1.0, 1.0, 1.0, 0xffea00);
-      }
 
-      this.mesh.position.set(this.x, this.y, 0);
-      scene.add(this.mesh);
+      // Slice indices from tiles.png
+      // Ground = 0, Brick = 1, Question = 2, Coin = 3, Pipe = 4, Flagpole = 5
+      this.sliceIndices = { ground: 0, brick: 1, question: 2, pipe: 4 };
+      this.sliceIdx = this.sliceIndices[type] || 0;
     }
 
-    update(dt) {
-      // Bonking animations
-      if (this.hit && this.hitOffset > -0.25 && this.hitSpeed <= 0) {
-        this.hitOffset -= 0.05;
-        if (this.hitOffset <= -0.25) {
-          this.hitSpeed = 0.05;
+    update() {
+      // Bonking springy bounce
+      if (this.hit && this.hitOffset > -10 && this.hitSpeed <= 0) {
+        this.hitOffset -= 2;
+        if (this.hitOffset <= -10) {
+          this.hitSpeed = 2;
         }
       } else if (this.hit && this.hitOffset < 0 && this.hitSpeed > 0) {
         this.hitOffset += this.hitSpeed;
@@ -757,106 +620,113 @@ document.addEventListener('DOMContentLoaded', () => {
           this.hitSpeed = 0;
         }
       }
-      this.mesh.position.y = this.y - this.hitOffset;
     }
 
-    destroy() {
-      scene.remove(this.mesh);
+    draw() {
+      const frameWidth = assets.tiles.width / 6;
+      const frameHeight = assets.tiles.height;
+
+      let renderIdx = this.sliceIdx;
+      // If question block was hit, draw it as an empty block (same slice as Pipe top or a dark version of Ground/Brick)
+      if (this.type === 'question' && this.hit) {
+        renderIdx = 1; // display as standard brick
+      }
+
+      ctx.save();
+      // Emissives on question block
+      if (this.type === 'question' && !this.hit) {
+        ctx.shadowBlur = 5;
+        ctx.shadowColor = '#ffea00';
+      }
+
+      ctx.drawImage(
+        assets.tiles,
+        renderIdx * frameWidth, 0, frameWidth, frameHeight,
+        this.x - cameraX, this.y - this.hitOffset, this.width, this.height
+      );
+      ctx.restore();
     }
   }
 
-  class VoxelCoin {
+  // ----------------------------------------------------
+  // COINS CLASS
+  // ----------------------------------------------------
+  class Coin {
     constructor(gridX, gridY) {
-      this.x = gridX;
-      this.y = gridY;
-      this.width = 0.6;
-      this.height = 0.8;
+      this.x = gridX * BLOCK_SIZE + 10;
+      this.y = gridY * BLOCK_SIZE + 8;
+      this.width = 20;
+      this.height = 26;
       this.collected = false;
       this.vx = 0;
       this.vy = 0;
-      
-      // 3D Cylinder Coin
-      const geo = new THREE.CylinderGeometry(0.25, 0.25, 0.08, 8);
-      const mat = new THREE.MeshStandardMaterial({
-        color: 0xffea00,
-        metalness: 0.9,
-        roughness: 0.1
-      });
-      this.mesh = new THREE.Mesh(geo, mat);
-      this.mesh.rotation.x = Math.PI / 2; // face front
-      this.mesh.castShadow = true;
-      this.mesh.position.set(this.x, this.y, 0);
-      scene.add(this.mesh);
     }
 
     update() {
-      // Spinning cylinders
-      this.mesh.rotation.y += 0.05;
+      this.x += this.vx;
+      this.y += this.vy;
+    }
+
+    draw() {
+      const frameWidth = assets.tiles.width / 6;
+      const frameHeight = assets.tiles.height;
       
-      // Magnet pull physics
-      if (this.vx !== 0 || this.vy !== 0) {
-        this.x += this.vx;
-        this.y += this.vy;
-        this.mesh.position.set(this.x, this.y, 0);
+      ctx.save();
+      ctx.shadowBlur = 6;
+      ctx.shadowColor = '#ffea00';
+
+      ctx.drawImage(
+        assets.tiles,
+        3 * frameWidth, 0, frameWidth, frameHeight, // index 3 is Coin
+        this.x - cameraX, this.y, this.width, this.height
+      );
+      ctx.restore();
+    }
+  }
+
+  // ----------------------------------------------------
+  // FLAGPOLE CLASS (Victory Target)
+  // ----------------------------------------------------
+  class Flagpole {
+    constructor(gridX, gridY) {
+      this.x = gridX * BLOCK_SIZE;
+      this.y = gridY * BLOCK_SIZE - 200; // Flagpole spans 5 tiles high
+      this.width = 40;
+      this.height = 240;
+    }
+
+    update() {}
+
+    draw() {
+      const frameWidth = assets.tiles.width / 6;
+      const frameHeight = assets.tiles.height;
+
+      // Draw the flagpole repeating 5 times vertically
+      for (let i = 0; i < 6; i++) {
+        ctx.drawImage(
+          assets.tiles,
+          5 * frameWidth, 0, frameWidth, frameHeight, // index 5 is Flagpole
+          this.x - cameraX, this.y + (i * BLOCK_SIZE), BLOCK_SIZE, BLOCK_SIZE
+        );
       }
     }
-
-    destroy() {
-      scene.remove(this.mesh);
-    }
-  }
-
-  class GoalFlagpole {
-    constructor(gridX, gridY) {
-      this.x = gridX;
-      this.y = gridY;
-      this.height = 5.0;
-      this.width = 0.4;
-      
-      this.group = new THREE.Group();
-      
-      // Voxel Pole (tall cylinder)
-      const poleGeo = new THREE.CylinderGeometry(0.08, 0.08, this.height, 8);
-      const poleMat = new THREE.MeshStandardMaterial({ color: 0xcccccc, metalness: 0.8 });
-      const poleMesh = new THREE.Mesh(poleGeo, poleMat);
-      poleMesh.position.y = this.height / 2;
-      poleMesh.castShadow = true;
-      this.group.add(poleMesh);
-      
-      // Red Flag mesh
-      this.flag = createVoxelMesh(0.8, 0.6, 0.1, 0xff0055);
-      this.flag.position.set(0.4, this.height - 0.4, 0);
-      this.group.add(this.flag);
-      
-      this.group.position.set(this.x, this.y, 0);
-      scene.add(this.group);
-    }
-
-    update() {
-      // Wave flag slightly
-      this.flag.rotation.y = Math.sin(Date.now() / 200) * 0.15;
-    }
-
-    destroy() {
-      scene.remove(this.group);
-    }
   }
 
   // ----------------------------------------------------
-  // ENEMY CLASSES (Goombas, Koopas, Boss)
+  // ENEMY CLASS
   // ----------------------------------------------------
-  class VoxelEnemy {
+  class Enemy {
     constructor(gridX, gridY, type) {
-      this.x = gridX;
-      this.y = gridY;
+      this.x = gridX * BLOCK_SIZE;
+      this.y = gridY * BLOCK_SIZE;
       this.type = type; // 'goomba', 'koopa', 'beetle', 'drone', 'bowser'
-      this.width = 0.8;
-      this.height = 0.8;
-      this.speedX = -0.035;
+      this.width = 36;
+      this.height = 36;
+      this.speedX = -1.2;
       
       if (type === 'bowser') {
-        this.width = 2.0;
-        this.height = 2.0;
+        this.width = 75;
+        this.height = 75;
         this.hp = 3;
         this.shootTimer = 0;
       }
@@ -864,69 +734,12 @@ document.addEventListener('DOMContentLoaded', () => {
       this.stamped = false;
       this.stampTimer = 0;
       
-      // Create Voxel Mesh
-      this.group = new THREE.Group();
-      
-      if (type === 'goomba') {
-        this.body = createVoxelMesh(0.8, 0.5, 0.8, 0xff007f);
-        this.body.position.y = 0.25;
-        this.group.add(this.body);
-        
-        this.feet = createVoxelMesh(0.6, 0.2, 0.9, 0x8b8ba7);
-        this.feet.position.y = 0.1;
-        this.group.add(this.feet);
-      } 
-      else if (type === 'koopa') {
-        this.shell = createVoxelMesh(0.7, 0.6, 0.7, 0xffea00);
-        this.shell.position.y = 0.3;
-        this.group.add(this.shell);
-        
-        this.head = createVoxelMesh(0.4, 0.4, 0.4, 0x00f0ff);
-        this.head.position.set(-0.4, 0.6, 0);
-        this.group.add(this.head);
-      }
-      else if (type === 'beetle') {
-        // Spiky shell beetle
-        this.shell = createVoxelMesh(0.8, 0.4, 0.8, 0x9d4edd);
-        this.shell.position.y = 0.2;
-        this.group.add(this.shell);
-        
-        // Spike spikes
-        this.spike = createVoxelMesh(0.2, 0.3, 0.2, 0xffffff);
-        this.spike.position.set(0, 0.45, 0);
-        this.group.add(this.spike);
-      }
-      else if (type === 'drone') {
-        this.body = createVoxelMesh(0.7, 0.4, 0.7, 0x00f0ff);
-        this.body.position.y = 0.3;
-        this.group.add(this.body);
-        
-        // Rotor blades
-        this.rotor = createVoxelMesh(0.9, 0.05, 0.1, 0xffffff);
-        this.rotor.position.set(0, 0.55, 0);
-        this.group.add(this.rotor);
-      }
-      else if (type === 'bowser') {
-        // Giant Boss Bowser-Dino voxel model
-        this.body = createVoxelMesh(1.8, 1.5, 1.8, 0x1b8a0a); // green
-        this.body.position.y = 0.75;
-        this.group.add(this.body);
-        
-        this.shell = createVoxelMesh(1.0, 1.2, 2.0, 0x8b2e00); // spiky shell on back
-        this.shell.position.set(-0.5, 0.8, 0);
-        this.group.add(this.shell);
-        
-        this.head = createVoxelMesh(1.0, 0.8, 1.0, 0x1b8a0a);
-        this.head.position.set(0.9, 1.4, 0);
-        this.group.add(this.head);
-        
-        this.hair = createVoxelMesh(0.6, 0.4, 0.6, 0xff0055); // red hair/horns
-        this.hair.position.set(0.6, 1.9, 0);
-        this.group.add(this.hair);
-      }
-
-      this.group.position.set(this.x, this.y, 0);
-      scene.add(this.group);
+      // Slice indices from enemies.png
+      // Goomba = 0, Koopa = 1, Beetle = 2, Drone = 3, Bowser = 4
+      this.sliceIndices = { goomba: 0, koopa: 1, beetle: 2, drone: 3, bowser: 4 };
+      this.sliceIdx = this.sliceIndices[type] || 0;
+      this.bounceDir = 1;
+      this.bounceY = 0;
     }
 
     update(dt) {
@@ -936,51 +749,40 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       if (this.type === 'drone') {
-        this.rotor.rotation.y += 0.3;
-        // Hover float
-        this.y = 2.5 + Math.sin(Date.now() / 150) * 0.3;
+        // Drone moves left/right but floats up/down
+        this.x += this.speedX;
+        this.bounceY += 0.05 * this.bounceDir;
+        if (Math.abs(this.bounceY) > 1.2) {
+          this.bounceDir *= -1;
+        }
+        this.y = (this.y - this.bounceY);
       }
-      
-      if (this.type === 'bowser') {
-        // Bowser boss AI - shoots fireballs towards player
+      else if (this.type === 'bowser') {
+        // Boss fights fireballs
         this.shootTimer += dt;
-        if (this.shootTimer >= 2200 && Math.abs(player.x - this.x) < 16) {
+        if (this.shootTimer >= 2200 && Math.abs(player.x - this.x) < 550) {
           this.shootTimer = 0;
           sounds.shoot();
-          projectiles.push(new Projectile(this.x - 1.1, this.y + 1.2, -1, true)); // Bowser fireball goes left
+          projectiles.push(new Projectile(this.x - 10, this.y + 20, -1, true));
         }
-        
-        // Hopping logic
-        if (Math.random() < 0.015 && Math.abs(player.x - this.x) < 10) {
-          // Hop
-          this.x += (player.x < this.x ? -0.5 : 0.5);
+        if (Math.random() < 0.01 && Math.abs(player.x - this.x) < 300) {
+          this.x += (player.x < this.x ? -15 : 15);
         }
       } else {
-        // Standard walk, reverse on collisions
+        // Goomba / Koopa walking
         this.x += this.speedX;
-        
-        // Simple bounding checks to reverse direction
-        let checkCollision = false;
+
+        // Check horizontal boundary to bounce back
+        let collided = false;
         collidables.forEach(block => {
-          if (Math.abs(this.y - block.y) < 0.6 && Math.abs(this.x - block.x) < 0.9) {
-            checkCollision = true;
+          if (Math.abs(this.y - block.y) < 20 && Math.abs(this.x - block.x) < 32) {
+            collided = true;
           }
         });
-        
-        if (checkCollision || this.x < 1 || this.x > gridCols - 1) {
+        if (collided || this.x < 10 || this.x > (gridCols * BLOCK_SIZE) - this.width - 10) {
           this.speedX *= -1;
           this.x += this.speedX * 2;
         }
-      }
-
-      // Sync 3D position
-      this.group.position.set(this.x, this.y, 0);
-      
-      // Face movement direction
-      if (this.speedX > 0 && this.type !== 'bowser') {
-        this.group.rotation.y = Math.PI;
-      } else if (this.type !== 'bowser') {
-        this.group.rotation.y = 0;
       }
     }
 
@@ -989,105 +791,125 @@ document.addEventListener('DOMContentLoaded', () => {
         this.hp--;
         sounds.hit();
         triggerVibrate([80, 40, 80]);
-        createImpactExplosion(this.x, this.y + 1.0, 0xff0055);
+        createImpactExplosion(this.x + this.width/2, this.y + this.height/2, '#ff5500');
         if (this.hp <= 0) {
           this.stamped = true;
           score += 2000;
           sounds.stomp();
-          createImpactExplosion(this.x, this.y + 0.5, 0xffea00);
+          createImpactExplosion(this.x + this.width/2, this.y + this.height/2, '#ffea00');
         }
       } else {
         this.stamped = true;
         score += 300;
         sounds.stomp();
         triggerVibrate(30);
-        // Squash mesh animation
-        this.group.scale.y = 0.2;
-        this.y -= 0.3;
-        this.group.position.y = this.y;
-        createImpactExplosion(this.x, this.y + 0.2, 0xff007f);
+        createImpactExplosion(this.x + this.width/2, this.y + this.height/2, '#ff0055');
       }
     }
 
-    destroy() {
-      scene.remove(this.group);
+    draw() {
+      const frameWidth = assets.enemies.width / 5;
+      const frameHeight = assets.enemies.height;
+      
+      ctx.save();
+      
+      if (this.stamped) {
+        // Draw squashed flat goomba look
+        ctx.globalAlpha = Math.max(0, 1 - this.stampTimer / 500);
+        ctx.translate(this.x - cameraX + this.width/2, this.y + this.height - 10);
+        ctx.scale(1.3, 0.25);
+        ctx.drawImage(
+          assets.enemies,
+          this.sliceIdx * frameWidth, 0, frameWidth, frameHeight,
+          -this.width/2, -this.height/2, this.width, this.height
+        );
+        ctx.restore();
+        return;
+      }
+
+      // Flip enemy image based on walk speed
+      ctx.translate(this.x - cameraX + this.width/2, this.y + this.height/2);
+      if (this.speedX > 0 && this.type !== 'bowser') {
+        ctx.scale(-1, 1);
+      }
+
+      ctx.drawImage(
+        assets.enemies,
+        this.sliceIdx * frameWidth, 0, frameWidth, frameHeight,
+        -this.width/2, -this.height/2, this.width, this.height
+      );
+      
+      ctx.restore();
     }
   }
 
   // ----------------------------------------------------
-  // ITEM CLASSES (Powerups)
+  // ITEMS CLASS
   // ----------------------------------------------------
-  class VoxelItem {
-    constructor(gridX, gridY, type) {
-      this.x = gridX;
-      this.y = gridY;
+  class Item {
+    constructor(x, y, type) {
+      this.x = x;
+      this.y = y;
       this.type = type; // 'mushroom', 'fireflower', 'star', 'magnet'
-      this.width = 0.7;
-      this.height = 0.7;
-      this.vy = 0.12; // spawn pop upward
-      this.vx = 0.04;
+      this.width = 30;
+      this.height = 30;
+      this.vy = -5; // bounce up
+      this.vx = 1.5;
       this.onGround = false;
       this.collected = false;
 
-      // Mesh Creation
-      if (type === 'mushroom') {
-        this.mesh = createVoxelMesh(0.7, 0.7, 0.7, 0xff0055);
-      } else if (type === 'fireflower') {
-        this.mesh = createVoxelMesh(0.7, 0.7, 0.7, 0xffaa00);
-      } else if (type === 'star') {
-        this.mesh = createVoxelMesh(0.7, 0.7, 0.7, 0xffea00);
-      } else if (type === 'magnet') {
-        this.mesh = createVoxelMesh(0.7, 0.7, 0.7, 0x00f0ff);
-      }
-      
-      this.mesh.position.set(this.x, this.y, 0);
-      scene.add(this.mesh);
+      // Slice index mapping from Tiles/Dinos or custom
+      // Mushroom = Red box, Flower = Orange box, Star = Yellow box, Magnet = Cyan box
+      this.colors = { mushroom: '#ff0055', fireflower: '#ffaa00', star: '#ffea00', magnet: '#00f0ff' };
+      this.color = this.colors[type] || '#ffffff';
     }
 
     update() {
-      // Horizontal slide
       this.x += this.vx;
-      
-      // Gravity
-      this.vy -= 0.008;
+      this.vy += 0.4;
       this.y += this.vy;
-      
-      // Ground checks
-      const groundY = 0.5;
-      if (this.y < groundY) {
-        this.y = groundY;
-        this.vy = 0;
-        this.onGround = true;
-      }
-      
-      // Solid collisions
+
+      // Collisions against structures
       collidables.forEach(block => {
-        if (Math.abs(this.x - block.x) < 0.8) {
+        if (this.x + this.width > block.x && this.x < block.x + block.width) {
           // Land on top
-          if (this.vy <= 0 && this.y >= block.y + 0.8 && this.y - this.vy <= block.y + 1.1) {
-            this.y = block.y + 0.9;
+          if (this.vy >= 0 && this.y + this.height >= block.y && this.y + this.height - this.vy <= block.y + 10) {
+            this.y = block.y - this.height;
             this.vy = 0;
             this.onGround = true;
           }
-          // Hit sides - reverse direction
-          else if (Math.abs(this.y - block.y) < 0.5 && Math.abs(this.x - block.x) < 0.7) {
+          // Hit sides - bounce back
+          else if (Math.abs(this.y - block.y) < BLOCK_SIZE/2 && Math.abs(this.x - block.x) < 32) {
             this.vx *= -1;
             this.x += this.vx;
           }
         }
       });
-
-      this.mesh.position.set(this.x, this.y, 0);
-      this.mesh.rotation.y += 0.03;
     }
 
-    destroy() {
-      scene.remove(this.mesh);
+    draw() {
+      ctx.save();
+      // Draw colorful glowing items
+      ctx.fillStyle = this.color;
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = this.color;
+      
+      // Draw round capsule item
+      ctx.beginPath();
+      ctx.arc(this.x + 15 - cameraX, this.y + 15, 12, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Draw inner pattern
+      ctx.fillStyle = '#080813';
+      ctx.shadowBlur = 0;
+      ctx.fillRect(this.x + 12 - cameraX, this.y + 12, 6, 6);
+
+      ctx.restore();
     }
   }
 
   // ----------------------------------------------------
-  // FIREBALL PROJECTILE CLASS
+  // PROJECTILE CLASS
   // ----------------------------------------------------
   class Projectile {
     constructor(x, y, dir, isEnemy = false) {
@@ -1095,256 +917,257 @@ document.addEventListener('DOMContentLoaded', () => {
       this.y = y;
       this.dir = dir;
       this.isEnemy = isEnemy;
-      this.width = 0.4;
-      this.height = 0.4;
-      this.vx = 0.16 * dir;
-      this.vy = 0.06;
+      this.width = 16;
+      this.height = 16;
+      this.vx = 6.5 * dir;
+      this.vy = 2;
       this.destroyed = false;
-      
-      // Glowing Sphere Mesh
-      const color = isEnemy ? 0xff0055 : 0xff7700;
-      const geo = new THREE.SphereGeometry(0.2, 8, 8);
-      const mat = new THREE.MeshStandardMaterial({
-        color: color,
-        emissive: color,
-        roughness: 0.1
-      });
-      this.mesh = new THREE.Mesh(geo, mat);
-      this.mesh.position.set(this.x, this.y, 0);
-      scene.add(this.mesh);
     }
 
     update() {
       this.x += this.vx;
-      this.vy -= 0.006; // gravity bounce
+      this.vy += 0.3;
       this.y += this.vy;
-      
-      if (this.y < 0.5) {
-        this.y = 0.5;
-        this.vy = 0.06; // bounce
-      }
 
+      // Pipe / brick bounces
       collidables.forEach(block => {
-        if (Math.abs(this.x - block.x) < 0.7) {
-          // Bounce on top
-          if (this.vy <= 0 && this.y >= block.y + 0.8 && this.y - this.vy <= block.y + 1.1) {
-            this.y = block.y + 0.9;
-            this.vy = 0.06;
+        if (this.x + this.width > block.x && this.x < block.x + block.width) {
+          if (this.vy >= 0 && this.y + this.height >= block.y && this.y + this.height - this.vy <= block.y + 10) {
+            this.y = block.y - this.height;
+            this.vy = -4.5; // bounce up
           }
-          // Hit sides - explode
-          else if (Math.abs(this.y - block.y) < 0.5 && Math.abs(this.x - block.x) < 0.6) {
+          else if (Math.abs(this.y - block.y) < BLOCK_SIZE/2 && Math.abs(this.x - block.x) < 20) {
             this.destroyed = true;
           }
         }
       });
-      
-      this.mesh.position.set(this.x, this.y, 0);
     }
 
-    destroy() {
-      scene.remove(this.mesh);
+    draw() {
+      ctx.save();
+      const color = this.isEnemy ? '#ff0055' : '#ff7700';
+      ctx.fillStyle = color;
+      ctx.shadowBlur = 12;
+      ctx.shadowColor = color;
+      
+      ctx.beginPath();
+      ctx.arc(this.x + 8 - cameraX, this.y + 8, 8, 0, Math.PI*2);
+      ctx.fill();
+      ctx.restore();
     }
   }
 
   // ----------------------------------------------------
-  // PARTICLES (3D EXPLOSION BLOCKS)
+  // PARTICLE CLASS
   // ----------------------------------------------------
   class Particle {
-    constructor(x, y, colorHex) {
+    constructor(x, y, color) {
       this.x = x;
       this.y = y;
-      this.mesh = createVoxelMesh(0.12, 0.12, 0.12, colorHex);
-      this.mesh.position.set(x, y, 0);
-      
-      this.vx = (Math.random() - 0.5) * 0.15;
-      this.vy = (Math.random() - 0.2) * 0.15;
+      this.size = Math.random() * 5 + 2;
+      this.vx = (Math.random() - 0.5) * 6;
+      this.vy = (Math.random() - 0.5) * 6;
+      this.color = color;
       this.life = 1.0;
       this.decay = Math.random() * 0.04 + 0.02;
-      
-      scene.add(this.mesh);
     }
 
     update() {
       this.x += this.vx;
       this.y += this.vy;
-      this.vy -= 0.005; // gravity
+      this.vy += 0.15; // gravity pull
       this.life -= this.decay;
-      
-      this.mesh.position.set(this.x, this.y, 0);
-      this.mesh.scale.set(this.life, this.life, this.life);
     }
 
-    destroy() {
-      scene.remove(this.mesh);
+    draw() {
+      ctx.save();
+      ctx.globalAlpha = this.life;
+      ctx.fillStyle = this.color;
+      ctx.shadowBlur = 4;
+      ctx.shadowColor = this.color;
+      ctx.fillRect(this.x - cameraX, this.y, this.size, this.size);
+      ctx.restore();
+    }
+  }
+
+  // Helper: explosions on impact
+  function createImpactExplosion(x, y, colorHex) {
+    for (let i = 0; i < 12; i++) {
+      particles.push(new Particle(x, y, colorHex));
     }
   }
 
   // ----------------------------------------------------
-  // INITIAL SCENE SPARKING (Build Level from Grid)
+  // GRID LOADER & BUILDER
   // ----------------------------------------------------
   let flagpoleInstance = null;
 
   function loadLevelFromGrid() {
-    // Reverse the rows because level arrays are top-down but Three.js coordinate system Y is bottom-up
+    collidables.length = 0;
+    interactiveBlocks.length = 0;
+    coinsList.length = 0;
+    enemies.length = 0;
+    items.length = 0;
+    projectiles.length = 0;
+    particles.length = 0;
+    
+    flagpoleInstance = null;
+
     for (let r = 0; r < gridRows; r++) {
-      const gridY = gridRows - 1 - r;
       const rowString = activeGrid[r];
-      
-      for (let gridX = 0; gridX < gridCols; gridX++) {
-        const char = rowString[gridX];
+      for (let c = 0; c < gridCols; c++) {
+        const char = rowString[c];
         
         if (char === 'G') {
-          // Ground Block
-          const block = new VoxelBlock(gridX, gridY, 'solid');
-          collidables.push(block);
+          collidables.push(new Block(c, r, 'ground'));
         } 
         else if (char === 'B') {
-          // Brick
-          const block = new VoxelBlock(gridX, gridY, 'brick');
+          const block = new Block(c, r, 'brick');
           collidables.push(block);
           interactiveBlocks.push(block);
         }
         else if (char === 'Q') {
-          const block = new VoxelBlock(gridX, gridY, 'question', 'coin');
+          const block = new Block(c, r, 'question', 'coin');
           collidables.push(block);
           interactiveBlocks.push(block);
         }
         else if (char === 'M') {
-          const block = new VoxelBlock(gridX, gridY, 'question', 'mushroom');
+          const block = new Block(c, r, 'question', 'mushroom');
           collidables.push(block);
           interactiveBlocks.push(block);
         }
         else if (char === 'F') {
-          const block = new VoxelBlock(gridX, gridY, 'question', 'fireflower');
+          const block = new Block(c, r, 'question', 'fireflower');
           collidables.push(block);
           interactiveBlocks.push(block);
         }
         else if (char === 'S') {
-          const block = new VoxelBlock(gridX, gridY, 'question', 'star');
+          const block = new Block(c, r, 'question', 'star');
           collidables.push(block);
           interactiveBlocks.push(block);
         }
         else if (char === 'A') {
-          const block = new VoxelBlock(gridX, gridY, 'question', 'magnet');
+          const block = new Block(c, r, 'question', 'magnet');
           collidables.push(block);
           interactiveBlocks.push(block);
         }
         else if (char === 'P') {
-          // Pipe solid
-          const block = new VoxelBlock(gridX, gridY, 'pipe');
-          collidables.push(block);
+          collidables.push(new Block(c, r, 'pipe'));
         }
         else if (char === 'C') {
-          // Coin
-          coinsList.push(new VoxelCoin(gridX, gridY + 0.2));
+          coinsList.push(new Coin(c, r));
         }
         else if (char === 'E') {
-          enemies.push(new VoxelEnemy(gridX, gridY, 'goomba'));
+          enemies.push(new Enemy(c, r, 'goomba'));
         }
         else if (char === 'K') {
-          enemies.push(new VoxelEnemy(gridX, gridY, 'koopa'));
+          enemies.push(new Enemy(c, r, 'koopa'));
         }
         else if (char === 'T') {
-          enemies.push(new VoxelEnemy(gridX, gridY, 'beetle'));
+          enemies.push(new Enemy(c, r, 'beetle'));
         }
         else if (char === 'D') {
-          enemies.push(new VoxelEnemy(gridX, gridY, 'drone'));
+          enemies.push(new Enemy(c, r, 'drone'));
         }
         else if (char === 'X') {
-          enemies.push(new VoxelEnemy(gridX, gridY, 'bowser'));
+          enemies.push(new Enemy(c, r, 'bowser'));
         }
         else if (char === 'L') {
-          // Flagpole
-          flagpoleInstance = new GoalFlagpole(gridX, gridY);
+          flagpoleInstance = new Flagpole(c, r);
         }
       }
     }
   }
 
   // ----------------------------------------------------
-  // PHYSICS COLLISION RESOLUTION (3D Box intersections)
+  // COLLISION DETECTION & RESOLUTION
   // ----------------------------------------------------
   function resolveCollisions() {
     if (levelComplete) return;
 
-    // Create 3D Bounding Box for player
-    const playerBox = new THREE.Box3().setFromCenterAndSize(
-      new THREE.Vector3(player.x, player.y + player.height/2, 0),
-      new THREE.Vector3(player.width, player.height, 0.5)
-    );
+    // AABB Player box
+    let pBox = {
+      left: player.x,
+      right: player.x + player.width,
+      top: player.y,
+      bottom: player.y + player.height
+    };
 
     let stoodOnObject = false;
 
-    // 1. Collisions against Solid structures (Bricks, Ground blocks, Pipes)
+    // 1. Collisions against Solid structures
     collidables.forEach(block => {
-      const blockBox = new THREE.Box3().setFromCenterAndSize(
-        new THREE.Vector3(block.x, block.y, 0),
-        new THREE.Vector3(block.width, block.height, 1.0)
-      );
+      let bBox = {
+        left: block.x,
+        right: block.x + block.width,
+        top: block.y,
+        bottom: block.y + block.height
+      };
 
-      if (playerBox.intersectsBox(blockBox)) {
-        // Vertical Resolution
-        const overlapX = Math.min(player.x + player.width/2 - (block.x - 0.5), block.x + 0.5 - (player.x - player.width/2));
-        const overlapY = Math.min(player.y + player.height - (block.y - 0.5), block.y + 0.5 - player.y);
+      // Check intersections
+      if (pBox.right > bBox.left && pBox.left < bBox.right &&
+          pBox.bottom > bBox.top && pBox.top < bBox.bottom) {
+        
+        // Resolve axis of least penetration
+        const overlapX = Math.min(pBox.right - bBox.left, bBox.right - pBox.left);
+        const overlapY = Math.min(pBox.bottom - bBox.top, bBox.bottom - pBox.top);
 
         if (overlapY < overlapX) {
-          // Colliding vertically
-          if (player.vy <= 0 && player.y + player.height/2 > block.y) {
-            // Landed on top of the block
-            player.y = block.y + 0.5;
+          // Vertical Collision
+          if (player.vy >= 0 && pBox.bottom - player.vy <= bBox.top + 8) {
+            player.y = bBox.top - player.height;
             player.vy = 0;
             stoodOnObject = true;
           } 
-          else if (player.vy > 0 && player.y + player.height/2 < block.y) {
-            // Bonked the bottom of the block
-            player.y = block.y - 0.5 - player.height;
-            player.vy = -0.02; // bounce down
+          else if (player.vy < 0 && pBox.top - player.vy >= bBox.bottom - 8) {
+            player.y = bBox.bottom;
+            player.vy = 0.5; // bounce down
             
-            // Trigger block action if it is interactive
+            // Trigger block action
             if (block.type === 'brick' || block.type === 'question') {
               if (!block.hit) {
                 block.hit = true;
                 sounds.hit();
                 triggerVibrate(15);
                 
-                // Spawn rewards
                 if (block.itemType === 'coin') {
                   coins++;
                   score += 200;
                   hudCoins.textContent = `🪙 ${String(coins).padStart(2, '0')}`;
                   sounds.coin();
                   
-                  // Spawn coin jump animation
-                  const pop = new VoxelCoin(block.x, block.y + 1.0);
-                  pop.vy = 0.12;
+                  // Spawn coin jump
+                  const pop = new Coin(block.gridX, block.gridY - 1);
+                  pop.vy = -6;
                   setTimeout(() => {
-                    pop.destroy();
                     const idx = coinsList.indexOf(pop);
                     if (idx > -1) coinsList.splice(idx, 1);
-                  }, 350);
+                  }, 300);
                   coinsList.push(pop);
                 } else {
                   // Spawn Powerup
-                  items.push(new VoxelItem(block.x, block.y + 1.0, block.itemType));
+                  items.push(new Item(block.x + 5, block.y - 30, block.itemType));
                 }
               }
             }
           }
         } else {
-          // Horizontal Resolution (Blocking sides)
-          if (player.x < block.x) {
-            player.x = block.x - 0.5 - player.width/2;
+          // Horizontal Collision
+          if (pBox.left + player.width/2 < bBox.left + block.width/2) {
+            player.x = bBox.left - player.width;
           } else {
-            player.x = block.x + 0.5 + player.width/2;
+            player.x = bBox.right;
           }
           player.vx = 0;
         }
 
-        // Re-sync playerBox after resolution
-        playerBox.setFromCenterAndSize(
-          new THREE.Vector3(player.x, player.y + player.height/2, 0),
-          new THREE.Vector3(player.width, player.height, 0.5)
-        );
+        // Re-sync bounding box
+        pBox = {
+          left: player.x,
+          right: player.x + player.width,
+          top: player.y,
+          bottom: player.y + player.height
+        };
       }
     });
 
@@ -1352,29 +1175,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 2. Collisions against Coins
     const isMagnetActive = (player.powerup === 'magnet' || charType === 'stego');
-    const magnetRadius = (player.powerup === 'magnet') ? 5.5 : 2.5;
+    const magnetRadius = (player.powerup === 'magnet') ? 220 : 90;
 
     coinsList.forEach(coin => {
       if (coin.collected) return;
 
-      const coinBox = new THREE.Box3().setFromCenterAndSize(
-        new THREE.Vector3(coin.x, coin.y, 0),
-        new THREE.Vector3(coin.width, coin.height, 0.5)
-      );
-
-      // Magnet pull physics
-      const dx = player.x - coin.x;
-      const dy = (player.y + player.height/2) - coin.y;
+      const dx = (player.x + player.width/2) - (coin.x + coin.width/2);
+      const dy = (player.y + player.height/2) - (coin.y + coin.height/2);
       const dist = Math.sqrt(dx*dx + dy*dy);
       
       if (isMagnetActive && dist < magnetRadius) {
-        coin.vx = (dx / dist) * 0.18;
-        coin.vy = (dy / dist) * 0.18;
+        coin.vx = (dx / dist) * 7.5;
+        coin.vy = (dy / dist) * 7.5;
       }
 
-      if (playerBox.intersectsBox(coinBox)) {
+      if (pBox.right > coin.x && pBox.left < coin.x + coin.width &&
+          pBox.bottom > coin.y && pBox.top < coin.y + coin.height) {
         coin.collected = true;
-        coin.destroy();
         coins++;
         score += 200;
         hudCoins.textContent = `🪙 ${String(coins).padStart(2, '0')}`;
@@ -1387,22 +1204,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // 3. Collisions against Power-up Items
     items.forEach(item => {
       if (item.collected) return;
-
-      const itemBox = new THREE.Box3().setFromCenterAndSize(
-        new THREE.Vector3(item.x, item.y, 0),
-        new THREE.Vector3(item.width, item.height, 0.5)
-      );
-
-      if (playerBox.intersectsBox(itemBox)) {
+      if (pBox.right > item.x && pBox.left < item.x + item.width &&
+          pBox.bottom > item.y && pBox.top < item.y + item.height) {
         item.collected = true;
-        item.destroy();
         player.applyPowerup(item.type);
         score += 500;
         
         if (item.type !== 'mushroom') {
           powerupStatusBar.style.display = 'flex';
           powerupName.textContent = item.type.toUpperCase();
-          powerupName.style.color = (item.type === 'star') ? 'var(--neon-magenta)' : 'var(--neon-cyan)';
+          powerupName.style.color = (item.type === 'star') ? 'var(--toon-red)' : 'var(--toon-blue)';
           powerupProgressFill.style.width = '100%';
         }
       }
@@ -1413,37 +1224,38 @@ document.addEventListener('DOMContentLoaded', () => {
     enemies.forEach(enemy => {
       if (enemy.stamped) return;
 
-      const enemyBox = new THREE.Box3().setFromCenterAndSize(
-        new THREE.Vector3(enemy.x, enemy.y + enemy.height/2, 0),
-        new THREE.Vector3(enemy.width, enemy.height, 0.5)
-      );
+      let enemyBox = {
+        left: enemy.x,
+        right: enemy.x + enemy.width,
+        top: enemy.y,
+        bottom: enemy.y + enemy.height
+      };
 
-      // Check Fireball Projectiles against Enemy
+      // Check Fireballs against enemy
       projectiles.forEach(p => {
         if (!p.destroyed && !p.isEnemy) {
-          const pBox = new THREE.Box3().setFromCenterAndSize(
-            new THREE.Vector3(p.x, p.y, 0),
-            new THREE.Vector3(p.width, p.height, 0.5)
-          );
-          if (pBox.intersectsBox(enemyBox)) {
+          if (p.x + p.width > enemyBox.left && p.x < enemyBox.right &&
+              p.y + p.height > enemyBox.top && p.y < enemyBox.bottom) {
             p.destroyed = true;
             enemy.takeStompDamage();
           }
         }
       });
 
-      // Check Player against Enemy
-      if (playerBox.intersectsBox(enemyBox)) {
+      // Check Player against enemy
+      if (pBox.right > enemyBox.left && pBox.left < enemyBox.right &&
+          pBox.bottom > enemyBox.top && pBox.top < enemyBox.bottom) {
+        
         if (player.powerup === 'star' || player.isDashing) {
           enemy.takeStompDamage();
         }
-        // Jump on top (stomp Goombas/Koopas)
-        // Cave beetles ('beetle') have spikes on top - jumping on them hurts player!
-        else if (player.vy < 0 && player.y > enemy.y + enemy.height * 0.4 && enemy.type !== 'beetle') {
-          player.vy = 0.22; // bounce up
+        // Jump Stomp from top (cannot stomp beetle spikes!)
+        else if (player.vy > 0 && pBox.bottom - player.vy <= enemyBox.top + 12 && enemy.type !== 'beetle') {
+          player.vy = -8.5; // bounce up
           player.onGround = false;
           enemy.takeStompDamage();
-        } 
+        }
+        // Take damage
         else {
           player.takeDamage();
         }
@@ -1453,63 +1265,51 @@ document.addEventListener('DOMContentLoaded', () => {
     // Check Enemy Fireballs hitting Player
     projectiles.forEach(p => {
       if (p.isEnemy && !p.destroyed) {
-        const pBox = new THREE.Box3().setFromCenterAndSize(
-          new THREE.Vector3(p.x, p.y, 0),
-          new THREE.Vector3(p.width, p.height, 0.5)
-        );
-        if (playerBox.intersectsBox(pBox)) {
+        if (p.x + p.width > pBox.left && p.x < pBox.right &&
+            p.y + p.height > pBox.top && p.y < pBox.bottom) {
           p.destroyed = true;
           player.takeDamage();
         }
       }
     });
 
-    // Clean stamped enemies
+    // Clean squashed enemies
     enemies.forEach((e, idx) => {
       if (e.stamped && e.stampTimer >= 500) {
-        e.destroy();
         enemies.splice(idx, 1);
       }
     });
 
-    // 5. Collisions against Goal Flagpole (Victory Trigger)
+    // 5. Victory Flagpole Trigger
     if (flagpoleInstance && !levelComplete) {
-      const poleBox = new THREE.Box3().setFromCenterAndSize(
-        new THREE.Vector3(flagpoleInstance.x, flagpoleInstance.y + flagpoleInstance.height/2, 0),
-        new THREE.Vector3(0.5, flagpoleInstance.height, 0.5)
-      );
-
-      if (playerBox.intersectsBox(poleBox)) {
+      if (pBox.right > flagpoleInstance.x && pBox.left < flagpoleInstance.x + flagpoleInstance.width &&
+          pBox.bottom > flagpoleInstance.y && pBox.top < flagpoleInstance.y + flagpoleInstance.height) {
         triggerVictory();
       }
     }
   }
 
   // ----------------------------------------------------
-  // VICTORY SEQUENCE
+  // VICTORY / DEATH SEQUENCES
   // ----------------------------------------------------
   function triggerVictory() {
     levelComplete = true;
     gameState = 'PAUSED';
     sounds.victory();
     triggerVibrate([50, 100, 150, 200]);
-    victorySequenceTimer = 0;
     
-    // Animate sliding down pole
     player.vx = 0;
-    player.vy = -0.05; // slowly slide down
-    
+    player.vy = 2; // slowly slide down the flagpole
+
     setTimeout(() => {
-      // Show Level Complete modal / next level options
       goPlayer.textContent = playerName;
       goChar.textContent = `${names[charType]} ${emojis[charType]}`;
       goCoins.textContent = `🪙 ${coins}`;
       goTime.textContent = `${timeElapsed.toFixed(1)}s`;
       
-      const finalScoreValue = Math.floor(score + coins * 150 + (300 - timeElapsed) * 10);
+      const finalScoreValue = Math.floor(score + coins * 150 + Math.max(0, 300 - timeElapsed) * 10);
       goScore.textContent = finalScoreValue;
       
-      // Update highscore
       const records = JSON.parse(localStorage.getItem('alphadino_leaderboard')) || [];
       const newEntry = {
         name: playerName,
@@ -1522,12 +1322,10 @@ document.addEventListener('DOMContentLoaded', () => {
       records.sort((a,b) => b.score - a.score);
       localStorage.setItem('alphadino_leaderboard', JSON.stringify(records.slice(0, 10)));
 
-      // Set visual GameOver modal title to "FASE CONCLUÍDA"
       const modalTitle = document.querySelector('#gameover-overlay .card-title');
       modalTitle.textContent = "FASE CONCLUÍDA!";
       modalTitle.className = "card-title text-center neon-text-cyan";
       
-      // Update next phase button
       const restartBtn = document.getElementById('btn-restart');
       if (selectedLevelNum < 5) {
         restartBtn.textContent = `Ir para Fase ${selectedLevelNum + 1}`;
@@ -1571,7 +1369,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ----------------------------------------------------
-  // MAIN LOOPS
+  // MAIN GAME LOOP MAPPED TO 2D CANVAS
   // ----------------------------------------------------
   let lastTime = performance.now();
 
@@ -1587,7 +1385,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // Update player
     player.update(dt);
 
-    // Update powerup status HUD bar
+    // Camera follow X smoothly with clamping bounds
+    const targetCamX = player.x - canvas.width / 3;
+    cameraX = targetCamX;
+    if (cameraX < 0) cameraX = 0;
+    if (cameraX > (gridCols * BLOCK_SIZE) - canvas.width) {
+      cameraX = (gridCols * BLOCK_SIZE) - canvas.width;
+    }
+
+    // Update status HUD bar
     if (player.powerup && player.powerup !== 'mushroom') {
       const percentage = (player.powerupDuration / player.powerupMaxDuration) * 100;
       powerupProgressFill.style.width = `${Math.max(0, percentage)}%`;
@@ -1596,25 +1402,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Update entities
-    interactiveBlocks.forEach(b => b.update(dt));
+    interactiveBlocks.forEach(b => b.update());
     coinsList.forEach(c => c.update());
     enemies.forEach(e => e.update(dt));
-    items.forEach(i => i.update());
+    
     projectiles.forEach(p => p.update());
+    
     particles.forEach((p, idx) => {
       p.update();
-      if (p.life <= 0) {
-        p.destroy();
-        particles.splice(idx, 1);
-      }
+      if (p.life <= 0) particles.splice(idx, 1);
     });
-
-    if (flagpoleInstance) flagpoleInstance.update();
 
     // Clean projectiles
     projectiles.forEach((p, idx) => {
-      if (p.destroyed || p.x < player.x - 20 || p.x > player.x + 20) {
-        p.destroy();
+      if (p.destroyed || p.x < player.x - 600 || p.x > player.x + 600) {
         projectiles.splice(idx, 1);
       }
     });
@@ -1623,24 +1424,28 @@ document.addEventListener('DOMContentLoaded', () => {
     resolveCollisions();
   }
 
-  function render3D() {
-    // 2.5D Side-scrolling Camera Tracking
-    // Lock Y and Z, track X smoothly
-    const targetCameraX = player.x + 2.0;
-    camera.position.x = THREE.MathUtils.lerp(camera.position.x, targetCameraX, 0.08);
-    camera.position.y = 4.2;
-    camera.position.z = 8.5;
-    
-    camera.lookAt(camera.position.x, 2.2, 0);
+  function draw() {
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Dynamic light tracking
-    sunLight.position.set(camera.position.x + 10, 20, 15);
-    sunLight.shadow.camera.left = camera.position.x - dRange;
-    sunLight.shadow.camera.right = camera.position.x + dRange;
-    
-    neonLight.position.set(player.x, player.y + 1.0, 0.5);
+    // 1. Draw seamless looping parallax backgrounds
+    let bgOffset = (-cameraX * 0.25) % canvas.width;
+    ctx.drawImage(assets.bg, bgOffset, 0, canvas.width, canvas.height);
+    ctx.drawImage(assets.bg, bgOffset + canvas.width, 0, canvas.width, canvas.height);
 
-    renderer.render(scene, camera);
+    // 2. Draw Tiles, Coins, Flagpole
+    collidables.forEach(block => block.draw());
+    coinsList.forEach(coin => coin.draw());
+    if (flagpoleInstance) flagpoleInstance.draw();
+
+    // 3. Draw Enemies, Items, Projectiles, and Particles
+    enemies.forEach(e => e.draw());
+    items.forEach(i => i.draw());
+    projectiles.forEach(p => p.draw());
+    particles.forEach(p => p.draw());
+
+    // 4. Draw Player
+    player.draw();
   }
 
   function gameLoop(timestamp) {
@@ -1649,7 +1454,7 @@ document.addEventListener('DOMContentLoaded', () => {
     lastTime = timestamp;
 
     update(dt);
-    render3D();
+    draw();
 
     requestAnimationFrame(gameLoop);
   }
@@ -1657,22 +1462,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // Load level blocks
   loadLevelFromGrid();
 
-  // Initial Camera placement
-  camera.position.set(player.x + 2.0, 4.2, 8.5);
-  camera.lookAt(player.x + 2.0, 2.2, 0);
-
-  // Trigger loop
-  requestAnimationFrame(gameLoop);
-
-  // Helper: explosions on impact
-  function createImpactExplosion(x, y, colorHex) {
-    for (let i = 0; i < 15; i++) {
-      particles.push(new Particle(x, y, colorHex));
-    }
-  }
-
   // ----------------------------------------------------
-  // INPUT EVENT LISTENERS (Keyboards & Mobile Gamepad)
+  // INPUT EVENT LISTENERS (Keyboards & Joystick Touch)
   // ----------------------------------------------------
   function setLeft(state) {
     keys.left = state;
@@ -1706,7 +1497,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') setJump(false);
   });
 
-  // B. Mobile Touch mapping (Translucent buttons & Joystick)
+  // B. Mobile Touch mapping (Joystick)
   const joystickBase = document.getElementById('joystick-base');
   const joystickHandle = document.getElementById('joystick-handle');
   const joystickContainer = document.getElementById('joystick-container');
@@ -1715,7 +1506,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let joystickTouchId = null;
   let startX = 0;
   let startY = 0;
-  const maxDrag = 40; // Max drag radius in pixels
+  const maxDrag = 40;
 
   function handleJoystickStart(e) {
     e.preventDefault();
@@ -1724,8 +1515,8 @@ document.addEventListener('DOMContentLoaded', () => {
     joystickTouchId = touch.identifier;
     
     const rect = joystickContainer.getBoundingClientRect();
-    const x = touch.clientX - rect.left - 50; // offset half width of base (50px)
-    const y = touch.clientY - rect.top - 50;  // offset half height of base (50px)
+    const x = touch.clientX - rect.left - 50;
+    const y = touch.clientY - rect.top - 50;
     
     joystickBase.style.position = 'absolute';
     joystickBase.style.left = `${x}px`;
@@ -1797,12 +1588,64 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('touchmove', handleJoystickMove, { passive: false });
     window.addEventListener('touchend', handleJoystickEnd, { passive: false });
     window.addEventListener('touchcancel', handleJoystickEnd, { passive: false });
+
+    // Desktop Mouse Emulation
+    let mouseActive = false;
+    joystickContainer.addEventListener('mousedown', e => {
+      mouseActive = true;
+      const rect = joystickContainer.getBoundingClientRect();
+      const x = e.clientX - rect.left - 50;
+      const y = e.clientY - rect.top - 50;
+      joystickBase.style.position = 'absolute';
+      joystickBase.style.left = `${x}px`;
+      joystickBase.style.top = `${y}px`;
+      startX = e.clientX;
+      startY = e.clientY;
+      initAudio();
+    });
+
+    window.addEventListener('mousemove', e => {
+      if (!mouseActive) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      let moveX = dx;
+      let moveY = dy;
+      if (dist > maxDrag) {
+        moveX = (dx / dist) * maxDrag;
+        moveY = (dy / dist) * maxDrag;
+      }
+      joystickHandle.style.transform = `translate(${moveX}px, ${moveY}px)`;
+      const threshold = 12;
+      if (moveX < -threshold) {
+        keys.left = true;
+        keys.right = false;
+      } else if (moveX > threshold) {
+        keys.right = true;
+        keys.left = false;
+      } else {
+        keys.left = false;
+        keys.right = false;
+      }
+    });
+
+    window.addEventListener('mouseup', () => {
+      if (mouseActive) {
+        mouseActive = false;
+        joystickBase.style.position = '';
+        joystickBase.style.left = '';
+        joystickBase.style.top = '';
+        joystickHandle.style.transform = 'translate(0px, 0px)';
+        keys.left = false;
+        keys.right = false;
+      }
+    });
   }
 
   const btnJump = document.getElementById('ctrl-jump');
   const btnSpecial = document.getElementById('ctrl-special');
   const lblSpecial = document.getElementById('ctrl-special-label');
-
+  
   const specialLabels = {
     raptor: 'FIRE',
     ptera: 'GLIDE',

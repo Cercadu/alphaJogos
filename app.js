@@ -101,11 +101,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Map character ID to a small visual details
     const charColors = {
-      raptor: '#39ff14',
-      ptera: '#00f0ff',
-      trex: '#ff007f',
-      trike: '#ffea00',
-      stego: '#ff6700'
+      raptor: '#8cd83d',
+      ptera: '#36b1e3',
+      trex: '#e04a1d',
+      trike: '#ffd700',
+      stego: '#ff8c00'
     };
 
     const charEmojis = {

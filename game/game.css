@@ -8,6 +8,7 @@ body {
   align-items: center;
   overflow: hidden;
   position: relative;
+  font-family: var(--font-sans);
 }
 
 /* Canvas Container & Autoscaling */
@@ -19,7 +20,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #030307;
+  background-color: #3e0c0c;
   position: absolute;
   top: 0;
   left: 0;
@@ -29,33 +30,32 @@ body {
 canvas {
   max-width: 100%;
   max-height: 100%;
-  box-shadow: 0 0 40px rgba(0, 0, 0, 0.8), 0 0 2px var(--neon-cyan);
-  background-color: #080813;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6), 0 0 0 6px var(--toon-brown);
+  border-radius: 8px;
+  background-color: #ffe066;
   display: block;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
   aspect-ratio: 16/9;
 }
 
-/* Floating Game HUD */
+/* Floating Cartoon HUD */
 .game-hud {
   position: absolute;
   top: 16px;
   left: 50%;
   transform: translateX(-50%);
-  width: 90%;
+  width: 92%;
   max-width: 900px;
-  background: rgba(8, 8, 19, 0.75);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--panel-border);
-  border-radius: 16px;
-  padding: 8px 20px;
+  background: rgba(255, 253, 240, 0.95);
+  border: 3px solid var(--toon-brown);
+  border-radius: 18px;
+  padding: 10px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   z-index: 10;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  box-shadow: 4px 4px 0px var(--toon-brown);
   gap: 12px;
 }
 
@@ -67,55 +67,69 @@ canvas {
 
 .player-info {
   flex-direction: row;
-  gap: 6px;
-  background: rgba(255, 255, 255, 0.05);
-  padding: 4px 10px;
-  border-radius: 8px;
-  border: 1px solid rgba(255,255,255,0.05);
+  gap: 8px;
+  background: rgba(74, 40, 16, 0.08);
+  padding: 6px 12px;
+  border-radius: 12px;
+  border: 2px solid var(--toon-brown);
 }
 
 .hud-emoji {
-  font-size: 1.2rem;
+  font-size: 1.3rem;
+  filter: drop-shadow(1px 1px 0px rgba(0,0,0,0.15));
 }
 
 .hud-text {
   font-family: var(--font-display);
-  font-size: 0.9rem;
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  max-width: 100px;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  max-width: 120px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .hud-label {
-  font-size: 0.65rem;
+  font-size: 0.7rem;
+  font-weight: 700;
   text-transform: uppercase;
   color: var(--text-secondary);
-  letter-spacing: 1.5px;
+  letter-spacing: 0.5px;
   margin-bottom: 2px;
 }
 
 .hud-val {
   font-family: var(--font-display);
-  font-size: 1.1rem;
-  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--text-primary);
 }
 
+/* Redefined Neon Texts for Cartoon Style */
 .neon-text-cyan {
-  color: var(--neon-cyan);
-  text-shadow: 0 0 5px rgba(0, 240, 255, 0.4);
+  color: var(--toon-blue) !important;
+  text-shadow: 
+    1.5px 1.5px 0px var(--toon-brown),
+    -1.5px -1.5px 0px var(--toon-brown),
+    1.5px -1.5px 0px var(--toon-brown),
+    -1.5px 1.5px 0px var(--toon-brown);
 }
 
 .neon-text-magenta {
-  color: var(--neon-magenta);
-  text-shadow: 0 0 5px rgba(255, 0, 127, 0.4);
+  color: var(--toon-red) !important;
+  text-shadow: 
+    1.5px 1.5px 0px var(--toon-brown),
+    -1.5px -1.5px 0px var(--toon-brown),
+    1.5px -1.5px 0px var(--toon-brown),
+    -1.5px 1.5px 0px var(--toon-brown);
 }
 
 .neon-text-yellow {
-  color: var(--neon-yellow);
-  text-shadow: 0 0 5px rgba(255, 234, 0, 0.4);
+  color: var(--toon-yellow) !important;
+  text-shadow: 
+    1.5px 1.5px 0px var(--toon-brown),
+    -1.5px -1.5px 0px var(--toon-brown),
+    1.5px -1.5px 0px var(--toon-brown),
+    -1.5px 1.5px 0px var(--toon-brown);
 }
 
 .hud-controls {
@@ -124,77 +138,78 @@ canvas {
 }
 
 .hud-btn {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #ffffff;
+  border: 2px solid var(--toon-brown);
   color: var(--text-primary);
-  border-radius: 8px;
-  width: 36px;
-  height: 36px;
-  font-size: 1rem;
+  border-radius: 10px;
+  width: 38px;
+  height: 38px;
+  font-size: 1.1rem;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s ease;
+  box-shadow: 2px 2px 0px var(--toon-brown);
+  transition: all 0.1s ease;
 }
 
 .hud-btn:hover {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: var(--neon-cyan);
+  background: var(--toon-yellow);
 }
 
 .hud-btn:active {
-  transform: scale(0.9);
+  transform: translate(2px, 2px);
+  box-shadow: 0px 0px 0px var(--toon-brown);
 }
 
 /* Powerup Status Bar */
 .powerup-status-bar {
   position: absolute;
-  top: 85px;
+  top: 90px;
   left: 50%;
   transform: translateX(-50%);
   width: 250px;
-  background: rgba(8, 8, 19, 0.85);
-  border: 1px solid var(--neon-cyan);
-  border-radius: 20px;
+  background: #fffdf0;
+  border: 3px solid var(--toon-brown);
+  border-radius: 16px;
   padding: 6px 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
   z-index: 10;
-  box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+  box-shadow: 3px 3px 0px var(--toon-brown);
   font-family: var(--font-display);
-  font-size: 0.7rem;
-  letter-spacing: 1px;
+  font-size: 0.75rem;
+  color: var(--toon-brown);
 }
 
 .powerup-progress-bg {
   flex-grow: 1;
-  height: 8px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
+  height: 10px;
+  background: rgba(74, 40, 16, 0.12);
+  border: 2px solid var(--toon-brown);
+  border-radius: 6px;
   overflow: hidden;
 }
 
 .powerup-progress-fill {
   height: 100%;
   width: 100%;
-  background: linear-gradient(90deg, var(--neon-cyan), var(--neon-magenta));
-  box-shadow: 0 0 8px var(--neon-cyan);
+  background: var(--toon-orange);
   transition: width 0.1s linear;
 }
 
-/* Floating Overlays */
+/* Floating Cartoon Overlays */
 .overlay {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(3, 3, 7, 0.8);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(74, 13, 13, 0.75);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -204,12 +219,14 @@ canvas {
 .overlay-card {
   width: 90%;
   max-width: 420px;
-  background: rgba(16, 16, 36, 0.9);
-  border: 1.5px solid var(--panel-border);
-  box-shadow: 0 0 30px rgba(0, 240, 255, 0.15);
+  background: var(--panel-bg);
+  border: 4px solid var(--panel-border);
+  border-radius: 24px;
+  box-shadow: 8px 8px 0px var(--toon-brown);
   display: flex;
   flex-direction: column;
   gap: 24px;
+  padding: 28px;
 }
 
 .text-center {
@@ -221,46 +238,48 @@ canvas {
   display: flex;
   flex-direction: column;
   gap: 12px;
-  background: rgba(8, 8, 19, 0.6);
-  padding: 16px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.03);
+  background: rgba(74, 40, 16, 0.05);
+  padding: 18px;
+  border-radius: 16px;
+  border: 3px dashed rgba(74, 40, 16, 0.15);
 }
 
 .stat-row {
   display: flex;
   justify-content: space-between;
-  font-size: 0.95rem;
+  font-size: 1rem;
+  font-weight: 600;
   color: var(--text-secondary);
 }
 
 .stat-row span:last-child {
   font-family: var(--font-display);
-  font-weight: 700;
   color: var(--text-primary);
 }
 
 .final-score {
-  border-top: 1px solid var(--panel-border);
+  border-top: 3px dashed rgba(74, 40, 16, 0.15);
   padding-top: 10px;
   margin-top: 4px;
-  font-size: 1.1rem;
+  font-size: 1.15rem;
 }
 
 .final-score span:last-child {
-  font-size: 1.25rem;
+  font-size: 1.3rem;
+  color: var(--toon-red);
 }
 
 .new-highscore-badge {
   text-align: center;
   font-family: var(--font-display);
-  font-weight: bold;
-  font-size: 1.1rem;
-  color: var(--neon-yellow);
-  background: rgba(255, 234, 0, 0.1);
-  border: 1px dashed var(--neon-yellow);
+  font-size: 1.15rem;
+  color: #ffffff;
+  background: var(--toon-orange);
+  border: 3px solid var(--toon-brown);
   padding: 8px;
-  border-radius: 8px;
+  border-radius: 12px;
+  box-shadow: 3px 3px 0px var(--toon-brown);
+  text-shadow: 1px 1px 0px var(--toon-brown);
   animation: pulse 1s infinite alternate;
 }
 
@@ -271,25 +290,26 @@ canvas {
 }
 
 .btn-secondary {
-  background: transparent;
-  border: 1.5px solid var(--panel-border);
+  background: #ffffff;
+  border: 3px solid var(--panel-border);
   color: var(--text-primary);
   font-family: var(--font-display);
-  font-size: 0.95rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  font-size: 1.1rem;
   padding: 14px;
-  border-radius: 12px;
+  border-radius: 16px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.1s ease;
   text-align: center;
+  box-shadow: 3px 3px 0px var(--toon-brown);
 }
 
 .btn-secondary:hover {
-  border-color: var(--neon-magenta);
-  background: rgba(255, 0, 127, 0.05);
-  box-shadow: 0 0 10px rgba(255, 0, 127, 0.2);
+  background: rgba(74, 40, 16, 0.05);
+}
+
+.btn-secondary:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px var(--toon-brown);
 }
 
 /* Mobile Virtual Gamepad Controls */
@@ -302,26 +322,24 @@ canvas {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  pointer-events: none; /* Let canvas clicks pass through in empty areas */
+  pointer-events: none;
   z-index: 15;
 }
 
 .control-left-zone,
 .control-right-zone {
   display: flex;
-  gap: 16px;
-  pointer-events: auto; /* Re-enable pointer events for buttons */
+  gap: 18px;
+  pointer-events: auto;
 }
 
 .ctrl-btn {
-  width: 76px;
-  height: 76px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
-  background: rgba(16, 16, 36, 0.55);
-  border: 2px solid rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  color: rgba(255, 255, 255, 0.7);
+  background: #ffffff;
+  border: 3px solid var(--toon-brown);
+  color: var(--toon-brown);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -329,8 +347,8 @@ canvas {
   cursor: pointer;
   user-select: none;
   touch-action: manipulation;
-  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.4);
+  box-shadow: 4px 4px 0px var(--toon-brown);
+  transition: all 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .ctrl-btn svg {
@@ -340,83 +358,84 @@ canvas {
 
 .ctrl-btn span {
   font-family: var(--font-display);
-  font-size: 0.6rem;
-  font-weight: 700;
+  font-size: 0.65rem;
   letter-spacing: 0.5px;
   margin-top: -2px;
 }
 
 .ctrl-btn:active {
-  transform: scale(0.88);
-  background: rgba(0, 240, 255, 0.15);
-  border-color: var(--neon-cyan);
-  color: var(--neon-cyan);
-  box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+  transform: translate(3px, 3px) scale(0.92);
+  box-shadow: 1px 1px 0px var(--toon-brown);
 }
 
+/* Joystick Base - Concentric Cartoon Bullseye */
 .joystick-base {
-  width: 100px;
-  height: 100px;
-  background: rgba(16, 16, 36, 0.5);
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  width: 106px;
+  height: 106px;
+  background: radial-gradient(circle, var(--toon-yellow) 0%, var(--toon-orange) 35%, var(--toon-red) 70%, var(--toon-brown) 100%);
+  border: 3px solid var(--toon-brown);
   border-radius: 50%;
   position: relative;
   display: flex;
   justify-content: center;
   align-items: center;
   pointer-events: auto;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
   touch-action: none;
 }
 
+/* Joystick Handle - Red Shiny Cartoon Knob */
 .joystick-handle {
-  width: 46px;
-  height: 46px;
-  background: linear-gradient(135deg, var(--neon-cyan), rgba(0, 240, 255, 0.5));
+  width: 48px;
+  height: 48px;
+  background: radial-gradient(circle, #ff6b6b 0%, #b31010 85%);
+  border: 3px solid var(--toon-brown);
   border-radius: 50%;
   position: absolute;
-  box-shadow: 0 0 15px var(--neon-cyan);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.4);
   touch-action: none;
   pointer-events: none;
 }
 
 .btn-special {
-  border-color: rgba(255, 0, 127, 0.3);
+  background: var(--toon-yellow);
 }
 
 .btn-special:active {
-  background: rgba(255, 0, 127, 0.15);
-  border-color: var(--neon-magenta);
-  color: var(--neon-magenta);
-  box-shadow: 0 0 15px rgba(255, 0, 127, 0.4);
+  background: #ffc400;
 }
 
 .btn-jump {
-  width: 88px;
-  height: 88px;
-  margin-bottom: 8px; /* Slightly offset upwards like standard gamepads */
-  border-color: rgba(0, 240, 255, 0.3);
+  width: 92px;
+  height: 92px;
+  margin-bottom: 8px;
+  background: var(--toon-blue);
+  color: #ffffff;
+  text-shadow: 1px 1px 0px var(--toon-brown);
+}
+
+.btn-jump:active {
+  background: #1b90c2;
 }
 
 /* Animations */
 .animate-scale {
-  animation: scaleIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: scaleIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 @keyframes scaleIn {
-  from { transform: scale(0.85); opacity: 0; }
+  from { transform: scale(0.8); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
 }
 
 @keyframes pulse {
   from { transform: scale(1); filter: brightness(1); }
-  to { transform: scale(1.02); filter: brightness(1.2); }
+  to { transform: scale(1.03); filter: brightness(1.1); }
 }
 
 /* Responsive visibility of controls */
-/* Hide virtual controls on desktop/large screens unless they touch the screen */
 @media (hover: hover) and (pointer: fine) {
   .mobile-controls {
-    display: none; /* Hide on devices with mouse/hover */
+    display: none;
   }
 }
