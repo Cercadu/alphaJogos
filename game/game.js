@@ -162,78 +162,118 @@ document.addEventListener('DOMContentLoaded', () => {
   // ----------------------------------------------------
   // LEVEL GRID CONFIGURATION (12 rows high, 120 cols wide)
   // ----------------------------------------------------
-  const BLOCK_SIZE = 40;
+  const BLOCK_SIZE = 60;
   
+  // Floating Text class for arcade visual juice (floating BAM, COMBO, points)
+  class FloatingText {
+    constructor(x, y, text, color = '#ffffff', size = 22) {
+      this.x = x;
+      this.y = y;
+      this.text = text;
+      this.color = color;
+      this.size = size;
+      this.life = 1.0;
+      this.vy = -2.0;
+    }
+    update() {
+      this.y += this.vy;
+      this.life -= 0.025;
+    }
+    draw() {
+      ctx.save();
+      ctx.globalAlpha = this.life;
+      ctx.font = `bold ${this.size}px var(--font-display)`;
+      ctx.fillStyle = this.color;
+      ctx.strokeStyle = '#4a2810';
+      ctx.lineWidth = 4;
+      ctx.textAlign = 'center';
+      ctx.strokeText(this.text, this.x - cameraX, this.y);
+      ctx.fillText(this.text, this.x - cameraX, this.y);
+      ctx.restore();
+    }
+  }
+
+  let floatingTexts = [];
+  let screenShakeDuration = 0;
+  let screenShakeIntensity = 0;
+  let hitstopTimer = 0;
+
+  function triggerScreenShake(intensity, duration) {
+    screenShakeIntensity = intensity;
+    screenShakeDuration = duration;
+  }
+  
+  // Wacky progressive cartoon level maps (12 rows, exact length per row)
   const levelMaps = {
     1: [
-      "                                                                                                   ",
-      "                                                                                                   ",
-      "                                                                                                   ",
-      "                                                                                                   ",
-      "                                                                                                   ",
-      "                 B Q B                                                                             ",
-      "                                                                                                   ",
-      "                                C C C                                                              ",
-      "                             B Q M Q B                                                             ",
-      "                                                                         C C                       ",
-      "          P                                                             P B P                   L  ",
-      "GGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG"
+      "                                                                                                                                                                                                ",
+      "                                                                                                                                                                                                ",
+      "                                                                                                                                                                                                ",
+      "                                                                                                                                                                                                ",
+      "                                                                                                                                                                                                ",
+      "                 B Q B             C C C             B M B                               B Q B                                                                                                  ",
+      "                                                                                                                                                                                                ",
+      "                                C C C                                                                         C C C                                                                             ",
+      "                             B Q M Q B                                                                     B Q S Q B                                                                            ",
+      "          P                                                             P B P                                                                  P                                             L  ",
+      "         P P               E               E               E           P B B P            E               E               E                   P P                                            ",
+      "GGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG"
     ],
     2: [
-      "                                                                                                   ",
-      "                                                                                                   ",
-      "                                                                                                   ",
-      "                                                                                                   ",
-      "                                                                                                   ",
-      "                 B S B             C C C                                                           ",
-      "                                  B Q F B                                                          ",
-      "                                                                                                   ",
-      "                                                                        C C C                      ",
-      "                             K                                         B Q Q B                     ",
-      "          P                 P P                                       P B B P                   L  ",
-      "GGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG"
+      "                                                                                                                                                                                                                                ",
+      "                                                                                                                                                                                                                                ",
+      "                                                                                                                                                                                                                                ",
+      "                                                                                                                                                                                                                                ",
+      "                                                                                                                                                                                                                                ",
+      "                 B S B             C C C             B Q B                                                                                             B Q B                                                                    ",
+      "                                  B Q F B                                                                                                           B Q S B                                                                     ",
+      "                                                                                                                                                                                                                                ",
+      "                                                                        C C C                                                                                                   C C C                                           ",
+      "                             K                                         B Q Q B                            E              E              K                                      B Q Q B                                       L  ",
+      "          P                 P P                                       P B B P                            P P            P P            P P                                    P B B P                                       ",
+      "GGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGG   GGGGGGGGGGGGGG   GGGGGGGGGGGGGG   GGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG"
     ],
     3: [
-      "                                                                                                   ",
-      "                                                                                                   ",
-      "                                                                                                   ",
-      "                                                                                                   ",
-      "                                                                                                   ",
-      "                 B A B                                                                             ",
-      "                                                                                                   ",
-      "                                C C C                                                              ",
-      "                             B Q M Q B                    T                                        ",
-      "          T                                                              C C                       ",
-      "          P                 P P                                         P B P                   L  ",
-      "GGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG"
+      "                                                                                                                                                                                                                                                ",
+      "                                                                                                                                                                                                                                                ",
+      "                                                                                                                                                                                                                                                ",
+      "                                                                                                                                                                                                                                                ",
+      "                                                                                                                                                                                                                                                ",
+      "                 B A B                               B Q B                                                                                             B Q B                                                                            ",
+      "                                                                                                                                                                                                                                                ",
+      "                                C C C                                                                                                               C C C                                                                               ",
+      "                             B Q M Q B                    T                                             T                                            B Q M Q B                                                                          ",
+      "          T                                                              C C                                                                                                 C C                                                     L  ",
+      "          P                 P P                                         P B P                           P P            P P                                                  P B P                                                   ",
+      "GGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGG   GGGGGGGGGGGGGG   GGGGGGGGGGGGGG   GGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG"
     ],
     4: [
-      "                                                                                                   ",
-      "                                                                                                   ",
-      "                                                                                                   ",
-      "                                                                                                   ",
-      "                                                                                                   ",
-      "                 B S B                                                                             ",
-      "                                                                                                   ",
-      "                                C D C                                                              ",
-      "                             B Q F Q B                                                             ",
-      "                                                                         C C                       ",
-      "          P                                                             P B P                   L  ",
-      "GGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG"
+      "                                                                                                                                                                                                                                                                ",
+      "                                                                                                                                                                                                                                                                ",
+      "                                                                                                                                                                                                                                                                ",
+      "                                                                                                                                                                                                                                                                ",
+      "                                                                                                                                                                                                                                                                ",
+      "                 B S B                                                                                             B S B                                                                                                                                        ",
+      "                                                                                                                                                                                                                                                                ",
+      "                                C D C                                                                                                               C D C                                                                                                       ",
+      "                             B Q F Q B                                                                                                           B Q F Q B                                                                                                      ",
+      "          P                                                             P B P                                           P                                                               P B P                                                        L  ",
+      "         P P               D               D                           P B B P            D               D            P P                                                             P B B P                                                       ",
+      "GGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGG   GGGGGGGGGGGGGG   GGGGGGGGGGGGGG   GGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG"
     ],
     5: [
-      "                                                                                                   ",
-      "                                                                                                   ",
-      "                                                                                                   ",
-      "                                                                                                   ",
-      "                                                                                                   ",
-      "                 B S B                                                                             ",
-      "                                                                                                   ",
-      "                                C C C                                                              ",
-      "                             B Q M Q B                                                             ",
-      "                                                                                                   ",
-      "          P                                                                X                    L  ",
-      "GGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG"
+      "                                                                                                                                                                                                                                                                                ",
+      "                                                                                                                                                                                                                                                                                ",
+      "                                                                                                                                                                                                                                                                                ",
+      "                                                                                                                                                                                                                                                                                ",
+      "                                                                                                                                                                                                                                                                                ",
+      "                 B S B                                                                                             B S B                                                                                                                                                        ",
+      "                                                                                                                                                                                                                                                                                ",
+      "                                C C C                                                                                                               C C C                                                                                                                       ",
+      "                             B Q M Q B                                                                                                           B Q M Q B                                                                                                                      ",
+      "          P                                                                                             P B P                                                                                           P B P                                                                L  ",
+      "         P P               K               T               D               E                           P B B P            E               K               T               D                             P B B P                              X                               ",
+      "GGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGG   GGGGGGGGGGGGGG   GGGGGGGGGGGGGG   GGGGGGGGGGGGGG   GGGGGGGGGGGGGG   GGGGGGGGGGGGGG   GGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG"
     ]
   };
 
@@ -288,13 +328,14 @@ document.addEventListener('DOMContentLoaded', () => {
       this.y = 100;
       this.vx = 0;
       this.vy = 0;
-      this.width = 40;
-      this.height = 54;
+      this.width = 60;
+      this.height = 80;
       
       this.onGround = false;
-      this.gravity = 0.55;
-      this.jumpPower = -12;
-      this.walkSpeed = 3.6;
+      this.gravity = 0.82;
+      this.jumpPower = -17.5;
+      this.walkSpeed = 5.4;
+      this.stompCombo = 0;
       
       this.life = 1;
       this.hasShield = (charType === 'trex');
@@ -351,16 +392,16 @@ document.addEventListener('DOMContentLoaded', () => {
       // Horizontal Walking Input
       if (!levelComplete && gameState === 'PLAYING') {
         if (this.isDashing) {
-          this.vx = 11 * (this.facingRight ? 1 : -1);
+          this.vx = 16.5 * (this.facingRight ? 1 : -1);
         } else {
           if (keys.left) {
             this.vx = -this.walkSpeed;
             this.facingRight = false;
-            this.walkFrameCycle += 0.2;
+            this.walkFrameCycle += 0.25;
           } else if (keys.right) {
             this.vx = this.walkSpeed;
             this.facingRight = true;
-            this.walkFrameCycle += 0.2;
+            this.walkFrameCycle += 0.25;
           } else {
             this.vx *= 0.75;
             if (Math.abs(this.vx) < 0.1) this.vx = 0;
@@ -380,11 +421,11 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
           this.jumpHoldTimer += dt;
           if (this.jumpHoldTimer < 180) {
-            this.vy -= 0.18;
+            this.vy -= 0.27;
           }
           if (charType === 'ptera' && this.vy > 0) {
             this.isGliding = true;
-            this.vy = 1.2; // glide terminal velocity
+            this.vy = 1.8; // glide terminal velocity
             if (Math.random() < 0.15) {
               particles.push(new Particle(this.x, this.y + this.height/2, '#00f0ff'));
             }
@@ -411,11 +452,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Power-up modifications
       if (this.powerup === 'mushroom') {
-        this.width = 56;
-        this.height = 75;
+        this.width = 84;
+        this.height = 112;
       } else {
-        this.width = 40;
-        this.height = 54;
+        this.width = 60;
+        this.height = 80;
       }
 
       // Check Special Ability
@@ -601,6 +642,7 @@ document.addEventListener('DOMContentLoaded', () => {
       this.itemType = itemType;
       this.width = BLOCK_SIZE;
       this.height = BLOCK_SIZE;
+      this.height = BLOCK_SIZE;
       
       this.hit = false;
       this.hitOffset = 0;
@@ -663,10 +705,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // ----------------------------------------------------
   class Coin {
     constructor(gridX, gridY) {
-      this.x = gridX * BLOCK_SIZE + 10;
-      this.y = gridY * BLOCK_SIZE + 8;
-      this.width = 20;
-      this.height = 26;
+      this.x = gridX * BLOCK_SIZE + 15;
+      this.y = gridY * BLOCK_SIZE + 10;
+      this.width = 30;
+      this.height = 39;
       this.collected = false;
       this.vx = 0;
       this.vy = 0;
@@ -704,9 +746,9 @@ document.addEventListener('DOMContentLoaded', () => {
   class Flagpole {
     constructor(gridX, gridY) {
       this.x = gridX * BLOCK_SIZE;
-      this.y = gridY * BLOCK_SIZE - 200; // Flagpole spans 5 tiles high
-      this.width = 40;
-      this.height = 240;
+      this.y = gridY * BLOCK_SIZE - 300; // Flagpole spans 6 tiles high
+      this.width = 60;
+      this.height = 360;
     }
 
     update() {}
@@ -736,16 +778,17 @@ document.addEventListener('DOMContentLoaded', () => {
   class Enemy {
     constructor(gridX, gridY, type) {
       this.x = gridX * BLOCK_SIZE;
-      this.y = gridY * BLOCK_SIZE;
       this.type = type; // 'goomba', 'koopa', 'beetle', 'drone', 'bowser'
-      this.width = 36;
-      this.height = 36;
-      this.speedX = -1.2;
+      this.width = 54;
+      this.height = 54;
+      this.y = gridY * BLOCK_SIZE + (BLOCK_SIZE - this.height);
+      this.speedX = -1.8;
       
       if (type === 'bowser') {
-        this.width = 75;
-        this.height = 75;
-        this.hp = 3;
+        this.width = 110;
+        this.height = 110;
+        this.y = gridY * BLOCK_SIZE + (BLOCK_SIZE - this.height);
+        this.hp = 5;
         this.shootTimer = 0;
       }
       
@@ -809,18 +852,28 @@ document.addEventListener('DOMContentLoaded', () => {
         this.hp--;
         sounds.hit();
         triggerVibrate([80, 40, 80]);
+        triggerScreenShake(15, 250);
+        hitstopTimer = 100; // Freeze frame impact!
+        floatingTexts.push(new FloatingText(this.x + this.width/2, this.y - 20, `BOWSER HP: ${this.hp}`, "#ff3333", 26));
         createImpactExplosion(this.x + this.width/2, this.y + this.height/2, '#ff5500');
         if (this.hp <= 0) {
           this.stamped = true;
           score += 2000;
           sounds.stomp();
+          triggerScreenShake(30, 500);
+          floatingTexts.push(new FloatingText(this.x + this.width/2, this.y - 20, "BOSS DEFEATED! +2000", "#ffea00", 30));
           createImpactExplosion(this.x + this.width/2, this.y + this.height/2, '#ffea00');
         }
       } else {
         this.stamped = true;
-        score += 300;
+        player.stompCombo++;
+        const comboBonus = 150 * player.stompCombo;
+        score += 300 + comboBonus;
         sounds.stomp();
         triggerVibrate(30);
+        triggerScreenShake(8, 120);
+        hitstopTimer = 60; // short freeze frame
+        floatingTexts.push(new FloatingText(this.x + this.width/2, this.y - 20, player.stompCombo > 1 ? `COMBO x${player.stompCombo}! +${300 + comboBonus}` : "+300", "#ffd700", 22));
         createImpactExplosion(this.x + this.width/2, this.y + this.height/2, '#ff0055');
       }
     }
@@ -870,10 +923,10 @@ document.addEventListener('DOMContentLoaded', () => {
       this.x = x;
       this.y = y;
       this.type = type; // 'mushroom', 'fireflower', 'star', 'magnet'
-      this.width = 30;
-      this.height = 30;
-      this.vy = -5; // bounce up
-      this.vx = 1.5;
+      this.width = 45;
+      this.height = 45;
+      this.vy = -7.5; // bounce up
+      this.vx = 2.25;
       this.onGround = false;
       this.collected = false;
 
@@ -936,9 +989,9 @@ document.addEventListener('DOMContentLoaded', () => {
       this.y = y;
       this.dir = dir;
       this.isEnemy = isEnemy;
-      this.width = 16;
-      this.height = 16;
-      this.vx = 6.5 * dir;
+      this.width = 24;
+      this.height = 24;
+      this.vx = 9 * dir;
       this.vy = 2;
       this.destroyed = false;
     }
@@ -970,7 +1023,7 @@ document.addEventListener('DOMContentLoaded', () => {
       ctx.shadowColor = color;
       
       ctx.beginPath();
-      ctx.arc(this.x + 8 - cameraX, this.y + 8, 8, 0, Math.PI*2);
+      ctx.arc(this.x + 12 - cameraX, this.y + 12, 12, 0, Math.PI*2);
       ctx.fill();
       ctx.restore();
     }
@@ -983,9 +1036,9 @@ document.addEventListener('DOMContentLoaded', () => {
     constructor(x, y, color) {
       this.x = x;
       this.y = y;
-      this.size = Math.random() * 5 + 2;
-      this.vx = (Math.random() - 0.5) * 6;
-      this.vy = (Math.random() - 0.5) * 6;
+      this.size = Math.random() * 8 + 3;
+      this.vx = (Math.random() - 0.5) * 9;
+      this.vy = (Math.random() - 0.5) * 9;
       this.color = color;
       this.life = 1.0;
       this.decay = Math.random() * 0.04 + 0.02;
@@ -1137,6 +1190,7 @@ document.addEventListener('DOMContentLoaded', () => {
             player.y = bBox.top - player.height;
             player.vy = 0;
             stoodOnObject = true;
+            player.stompCombo = 0;
           } 
           else if (player.vy < 0 && pBox.top - player.vy >= bBox.bottom - 8) {
             player.y = bBox.bottom;
@@ -1154,6 +1208,8 @@ document.addEventListener('DOMContentLoaded', () => {
                   score += 200;
                   hudCoins.textContent = `💰 ${String(coins).padStart(2, '0')}`;
                   sounds.coin();
+                  triggerScreenShake(4, 100);
+                  floatingTexts.push(new FloatingText(block.x + BLOCK_SIZE/2, block.y - 20, "+200", "#ffd700"));
                   
                   // Spawn coin jump
                   const pop = new Coin(block.gridX, block.gridY - 1);
@@ -1166,6 +1222,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                   // Spawn Powerup
                   items.push(new Item(block.x + 5, block.y - 30, block.itemType));
+                  triggerScreenShake(6, 120);
+                  floatingTexts.push(new FloatingText(block.x + BLOCK_SIZE/2, block.y - 20, "ITEM!", "#ffe066"));
                 }
               }
             }
@@ -1216,6 +1274,7 @@ document.addEventListener('DOMContentLoaded', () => {
         hudCoins.textContent = `💰 ${String(coins).padStart(2, '0')}`;
         sounds.coin();
         triggerVibrate(10);
+        floatingTexts.push(new FloatingText(coin.x + coin.width/2, coin.y - 15, "+200", "#ffd700", 18));
       }
     });
     coinsList = coinsList.filter(c => !c.collected);
@@ -1228,6 +1287,8 @@ document.addEventListener('DOMContentLoaded', () => {
         item.collected = true;
         player.applyPowerup(item.type);
         score += 500;
+        triggerScreenShake(8, 150);
+        floatingTexts.push(new FloatingText(player.x + player.width/2, player.y - 20, item.type.toUpperCase(), "#ff8c00", 24));
         
         if (item.type !== 'mushroom') {
           powerupStatusBar.style.display = 'flex';
@@ -1329,6 +1390,20 @@ document.addEventListener('DOMContentLoaded', () => {
       const finalScoreValue = Math.floor(score + coins * 150 + Math.max(0, 300 - timeElapsed) * 10);
       goScore.textContent = finalScoreValue;
       
+      // Calculate rating Rank
+      let ratingRank = 'C';
+      if (finalScoreValue > 15000) ratingRank = 'S';
+      else if (finalScoreValue > 10000) ratingRank = 'A';
+      else if (finalScoreValue > 6000) ratingRank = 'B';
+      
+      const goRank = document.getElementById('go-rank');
+      if (goRank) {
+        goRank.textContent = ratingRank;
+        const rankColors = { S: '#ffd700', A: '#36b1e3', B: '#ff8c00', C: '#7c5436' };
+        goRank.style.color = rankColors[ratingRank];
+        goRank.style.textShadow = '2.5px 2.5px 0px var(--toon-brown)';
+      }
+      
       const records = JSON.parse(localStorage.getItem('alphadino_leaderboard')) || [];
       const newEntry = {
         name: playerName,
@@ -1373,6 +1448,19 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const finalScoreValue = Math.floor(score + coins * 100);
     goScore.textContent = finalScoreValue;
+    
+    // Death rating Rank
+    let ratingRank = 'C';
+    if (finalScoreValue > 8000) ratingRank = 'B';
+    else if (finalScoreValue > 4000) ratingRank = 'C';
+    
+    const goRank = document.getElementById('go-rank');
+    if (goRank) {
+      goRank.textContent = ratingRank;
+      const rankColors = { S: '#ffd700', A: '#36b1e3', B: '#ff8c00', C: '#7c5436' };
+      goRank.style.color = rankColors[ratingRank];
+      goRank.style.textShadow = '2.5px 2.5px 0px var(--toon-brown)';
+    }
 
     const modalTitle = document.querySelector('#gameover-overlay .card-title');
     modalTitle.textContent = "FIM DE JOGO";
@@ -1394,6 +1482,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function update(dt) {
     if (gameState !== 'PLAYING') return;
+    
+    if (hitstopTimer > 0) {
+      hitstopTimer -= dt;
+      return;
+    }
 
     timeElapsed += dt / 1000;
     hudTime.textContent = `${timeElapsed.toFixed(1)}s`;
@@ -1427,6 +1520,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     projectiles.forEach(p => p.update());
     
+    floatingTexts.forEach(t => t.update());
+    floatingTexts = floatingTexts.filter(t => t.life > 0);
+    
     particles.forEach((p, idx) => {
       p.update();
       if (p.life <= 0) particles.splice(idx, 1);
@@ -1446,6 +1542,15 @@ document.addEventListener('DOMContentLoaded', () => {
   function draw() {
     // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    ctx.save();
+    // Screen shake translate
+    if (screenShakeDuration > 0) {
+      const shakeX = (Math.random() - 0.5) * screenShakeIntensity;
+      const shakeY = (Math.random() - 0.5) * screenShakeIntensity;
+      ctx.translate(shakeX, shakeY);
+      screenShakeDuration -= 16.6; // ~1 frame at 60fps
+    }
 
     // 1. Draw seamless looping parallax backgrounds
     let bgOffset = (-cameraX * 0.25) % canvas.width;
@@ -1465,6 +1570,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 4. Draw Player
     player.draw();
+    
+    // 5. Draw Floating Texts
+    floatingTexts.forEach(t => t.draw());
+    
+    ctx.restore();
   }
 
   function gameLoop(timestamp) {
