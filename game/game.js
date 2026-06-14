@@ -521,7 +521,13 @@ document.addEventListener('DOMContentLoaded', () => {
       let drawY = this.y;
       
       const frameWidth = assets.dinos.width / 5;
-      const frameHeight = assets.dinos.height;
+      const frameHeight = assets.dinos.height / 5;
+
+      // Calculate walking frame cycle (0 to 4)
+      let animFrame = 0;
+      if (Math.abs(this.vx) > 0.1 && this.onGround) {
+        animFrame = Math.floor(this.walkFrameCycle) % 5;
+      }
 
       // Add walk cycle frame tilt
       let walkRotation = 0;
@@ -548,7 +554,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       ctx.drawImage(
         assets.dinos,
-        activeDinoIdx * frameWidth, 0, frameWidth, frameHeight, // Slice
+        animFrame * frameWidth, activeDinoIdx * frameHeight, frameWidth, frameHeight, // Slice
         -this.width/2, -this.height/2, this.width, this.height // Draw
       );
 
@@ -624,13 +630,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     draw() {
       const frameWidth = assets.tiles.width / 6;
-      const frameHeight = assets.tiles.height;
+      const frameHeight = assets.tiles.height / 3;
 
       let renderIdx = this.sliceIdx;
       // If question block was hit, draw it as an empty block (same slice as Pipe top or a dark version of Ground/Brick)
       if (this.type === 'question' && this.hit) {
         renderIdx = 1; // display as standard brick
       }
+
+      let tileRow = 0;
+      if (selectedLevelNum === 2) tileRow = 1;
+      else if (selectedLevelNum === 3 || selectedLevelNum === 5) tileRow = 2;
 
       ctx.save();
       // Emissives on question block
@@ -641,7 +651,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       ctx.drawImage(
         assets.tiles,
-        renderIdx * frameWidth, 0, frameWidth, frameHeight,
+        renderIdx * frameWidth, tileRow * frameHeight, frameWidth, frameHeight,
         this.x - cameraX, this.y - this.hitOffset, this.width, this.height
       );
       ctx.restore();
@@ -669,15 +679,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     draw() {
       const frameWidth = assets.tiles.width / 6;
-      const frameHeight = assets.tiles.height;
+      const frameHeight = assets.tiles.height / 3;
       
+      let tileRow = 0;
+      if (selectedLevelNum === 2) tileRow = 1;
+      else if (selectedLevelNum === 3 || selectedLevelNum === 5) tileRow = 2;
+
       ctx.save();
       ctx.shadowBlur = 6;
       ctx.shadowColor = '#ffea00';
 
       ctx.drawImage(
         assets.tiles,
-        3 * frameWidth, 0, frameWidth, frameHeight, // index 3 is Coin
+        3 * frameWidth, tileRow * frameHeight, frameWidth, frameHeight, // index 3 is Coin
         this.x - cameraX, this.y, this.width, this.height
       );
       ctx.restore();
@@ -699,13 +713,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     draw() {
       const frameWidth = assets.tiles.width / 6;
-      const frameHeight = assets.tiles.height;
+      const frameHeight = assets.tiles.height / 3;
 
-      // Draw the flagpole repeating 5 times vertically
+      let tileRow = 0;
+      if (selectedLevelNum === 2) tileRow = 1;
+      else if (selectedLevelNum === 3 || selectedLevelNum === 5) tileRow = 2;
+
+      // Draw the flagpole repeating 6 times vertically
       for (let i = 0; i < 6; i++) {
         ctx.drawImage(
           assets.tiles,
-          5 * frameWidth, 0, frameWidth, frameHeight, // index 5 is Flagpole
+          5 * frameWidth, tileRow * frameHeight, frameWidth, frameHeight, // index 5 is Flagpole
           this.x - cameraX, this.y + (i * BLOCK_SIZE), BLOCK_SIZE, BLOCK_SIZE
         );
       }
@@ -809,7 +827,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     draw() {
       const frameWidth = assets.enemies.width / 5;
-      const frameHeight = assets.enemies.height;
+      const frameHeight = assets.enemies.height / 2;
+      const animFrame = Math.floor(Date.now() / 250) % 2;
       
       ctx.save();
       
@@ -820,7 +839,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.scale(1.3, 0.25);
         ctx.drawImage(
           assets.enemies,
-          this.sliceIdx * frameWidth, 0, frameWidth, frameHeight,
+          this.sliceIdx * frameWidth, animFrame * frameHeight, frameWidth, frameHeight,
           -this.width/2, -this.height/2, this.width, this.height
         );
         ctx.restore();
@@ -835,7 +854,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       ctx.drawImage(
         assets.enemies,
-        this.sliceIdx * frameWidth, 0, frameWidth, frameHeight,
+        this.sliceIdx * frameWidth, animFrame * frameHeight, frameWidth, frameHeight,
         -this.width/2, -this.height/2, this.width, this.height
       );
       
@@ -1133,7 +1152,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (block.itemType === 'coin') {
                   coins++;
                   score += 200;
-                  hudCoins.textContent = `🪙 ${String(coins).padStart(2, '0')}`;
+                  hudCoins.textContent = `💰 ${String(coins).padStart(2, '0')}`;
                   sounds.coin();
                   
                   // Spawn coin jump
@@ -1194,7 +1213,7 @@ document.addEventListener('DOMContentLoaded', () => {
         coin.collected = true;
         coins++;
         score += 200;
-        hudCoins.textContent = `🪙 ${String(coins).padStart(2, '0')}`;
+        hudCoins.textContent = `💰 ${String(coins).padStart(2, '0')}`;
         sounds.coin();
         triggerVibrate(10);
       }
@@ -1304,7 +1323,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
       goPlayer.textContent = playerName;
       goChar.textContent = `${names[charType]} ${emojis[charType]}`;
-      goCoins.textContent = `🪙 ${coins}`;
+      goCoins.textContent = `💰 ${coins}`;
       goTime.textContent = `${timeElapsed.toFixed(1)}s`;
       
       const finalScoreValue = Math.floor(score + coins * 150 + Math.max(0, 300 - timeElapsed) * 10);
@@ -1349,7 +1368,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     goPlayer.textContent = playerName;
     goChar.textContent = `${names[charType]} ${emojis[charType]}`;
-    goCoins.textContent = `🪙 ${coins}`;
+    goCoins.textContent = `💰 ${coins}`;
     goTime.textContent = `${timeElapsed.toFixed(1)}s`;
     
     const finalScoreValue = Math.floor(score + coins * 100);
