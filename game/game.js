@@ -170,29 +170,31 @@ const assets = {
     }
   }
 
+  const CACHE_BUST = '?v=' + Date.now();
+
   assets.bg.onload = checkAssetsLoaded;
   assets.bg.onerror = checkAssetsLoaded;
-  assets.bg.src = levelBgs[selectedLevelNum] || levelBgs[1];
+  assets.bg.src = (levelBgs[selectedLevelNum] || levelBgs[1]) + CACHE_BUST;
 
   dinoNames.forEach(name => {
     assets.dinos[name] = new Image();
     assets.dinos[name].onload = checkAssetsLoaded;
     assets.dinos[name].onerror = checkAssetsLoaded;
-    assets.dinos[name].src = `../assets/characters/sprites/${name}.png`;
+    assets.dinos[name].src = `../assets/characters/sprites/${name}.png${CACHE_BUST}`;
   });
 
   enemyNames.forEach(name => {
     assets.enemies[name] = new Image();
     assets.enemies[name].onload = checkAssetsLoaded;
     assets.enemies[name].onerror = checkAssetsLoaded;
-    assets.enemies[name].src = `../assets/enemies/sprites/${name}.png`;
+    assets.enemies[name].src = `../assets/enemies/sprites/${name}.png${CACHE_BUST}`;
   });
 
   tileNames.forEach(name => {
     assets.tiles[name] = new Image();
     assets.tiles[name].onload = checkAssetsLoaded;
     assets.tiles[name].onerror = checkAssetsLoaded;
-    assets.tiles[name].src = `../assets/tiles/sprites/${name}.png`;
+    assets.tiles[name].src = `../assets/tiles/sprites/${name}.png${CACHE_BUST}`;
   });
 
   // ----------------------------------------------------
