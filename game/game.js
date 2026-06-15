@@ -141,17 +141,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // ----------------------------------------------------
   // IMAGE ASSETS LOADING (Looney Tunes sprites)
   // ----------------------------------------------------
-  const assets = {
-    dinos: new Image(),
-    enemies: new Image(),
-    tiles: new Image(),
-    bg: new Image()
+const assets = {
+    bg: new Image(),
+    dinos: {},
+    enemies: {},
+    tiles: {}
   };
-
-  // Set Sources
-  assets.dinos.src = '../assets/characters/dinos.png';
-  assets.enemies.src = '../assets/enemies/enemies.png';
-  assets.tiles.src = '../assets/tiles/tiles.png';
   
   const levelBgs = {
     1: '../assets/backgrounds/bg_forest.png',
@@ -160,30 +155,41 @@ document.addEventListener('DOMContentLoaded', () => {
     4: '../assets/backgrounds/bg_forest.png',
     5: '../assets/backgrounds/bg_lava.png'
   };
-  assets.bg.src = levelBgs[selectedLevelNum] || levelBgs[1];
 
+  const dinoNames = ['raptor_0', 'raptor_1', 'ptero_0', 'ptero_1', 'rex_0', 'rex_1', 'trike_0', 'trike_1', 'stego_0', 'stego_1'];
+  const enemyNames = ['goomba', 'koopa', 'beetle', 'drone', 'bowser'];
+  const tileNames = ['grass_left', 'grass_right', 'brick1', 'brick2', 'item_block', 'coin', 'pipe', 'flagpole'];
+
+  const totalAssets = 1 + dinoNames.length + enemyNames.length + tileNames.length;
   let assetsLoaded = 0;
-  const totalAssets = 4;
-  
+
   function checkAssetsLoaded() {
     assetsLoaded++;
     if (assetsLoaded === totalAssets) {
-      // Start Game Loops
       requestAnimationFrame(gameLoop);
     }
   }
 
-  assets.dinos.onload = () => {
-    dinoBounds = scanDinoBounds(assets.dinos);
-    checkAssetsLoaded();
-  };
-  assets.enemies.onload = () => {
-    enemyBounds = scanEnemyBounds(assets.enemies);
-    checkAssetsLoaded();
-  };
-  assets.tiles.onload = checkAssetsLoaded;
   assets.bg.onload = checkAssetsLoaded;
+  assets.bg.src = levelBgs[selectedLevelNum] || levelBgs[1];
 
+  dinoNames.forEach(name => {
+    assets.dinos[name] = new Image();
+    assets.dinos[name].onload = checkAssetsLoaded;
+    assets.dinos[name].src = `../assets/characters/sprites/${name}.png`;
+  });
+
+  enemyNames.forEach(name => {
+    assets.enemies[name] = new Image();
+    assets.enemies[name].onload = checkAssetsLoaded;
+    assets.enemies[name].src = `../assets/enemies/sprites/${name}.png`;
+  });
+
+  tileNames.forEach(name => {
+    assets.tiles[name] = new Image();
+    assets.tiles[name].onload = checkAssetsLoaded;
+    assets.tiles[name].src = `../assets/tiles/sprites/${name}.png`;
+  });
 
   // ----------------------------------------------------
   // LEVEL GRID CONFIGURATION (12 rows high, 120 cols wide)
@@ -239,12 +245,12 @@ document.addEventListener('DOMContentLoaded', () => {
       "                                                                                                                                                                                    ",
       "                                                                                                                                                                                    ",
       "                                                                                                                                                                                    ",
-      "                                                                                                                                  CCC                                               ",
+      "                                                                                                  CCC                                                                               ",
       "                                                                                     CCC                                                                                            ",
-      "                  BQB               BMB                       BFB                              BSB                      BAB                                                         ",
-      "                                   C            P          C                                             P         C                                                                ",
-      "                            P     C C           P         C C              P                             P        C C                     P                                         ",
-      "               E    E       P      E  E      E  P           E  E  E        P              E  E        E  P                E  E         E  P E                   E  E        L       ",
+      "                  BBB BMB BBB                  BBB                              BBB BSB BBB               BBB                                                                       ",
+      "                                                                                                                                                                                    ",
+      "                                                                                                                                                                                    ",
+      "               E    E              E  E      E              E  E  E                       E  E           E                  E  E            E                         E  E        L ",
       "GGGGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGG    GGGGGGGGGGGGGGGGGGGGGGGGGG    GGGGGGGGGGGGGGGGGGGGGGGGGG     GGGGGGGGGGGGGGGGGGGGGGGGGGGGGG    GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG",
     ],
     2: [
@@ -253,12 +259,12 @@ document.addEventListener('DOMContentLoaded', () => {
       "                                                                                                                                                                                                        ",
       "                                                                                                                                                                                                        ",
       "                                                                                                                                                                                                        ",
-      "                                                  CCC                                                              CCC                                CCC                                               ",
+      "                                                  CCC                                                               CCC                                CCC                                              ",
       "                                                                                                                                                                                                        ",
-      "                    BMB                 BQB                           BFBQB                              BSB                      BAB                           BQB                                     ",
-      "                                                                    P                                                                         P                                                         ",
-      "                                  P                                 P                                                 P                       P                           P                             ",
-      "                  E   K           P   K   K       E   E             P   K   E   K                   E   K       K   E P               K   K   P  E  E             K   E   P           K   K     L       ",
+      "                    BBB BMB BBB         BBB                           BBB                                BBB BSB BBB              BBB                           BBB                                     ",
+      "                                                                                                                                                                                                        ",
+      "                                                                                                                                                                                                        ",
+      "                  E   K               K   K       E   E                 K   E   K                   E   K       K   E                 K   K      E  E             K   E               K   K     L       ",
       "GGGGGGGGGGGGGGGGGGGGGGGGGGGGGG    GGGGGGGGGGGGGGGGGGGGGGGGGG    GGGGGGGGGGGGGGGGGGGGGGGGGG     GGGGGGGGGGGGGGGGGGGGGGGGG     GGGGGGGGGGGGGGGGGGGGGGGGG      GGGGGGGGGGGGGGGGGGG    GGGGGGGGGGGGGGGGGGGGG",
     ],
     3: [
@@ -269,10 +275,10 @@ document.addEventListener('DOMContentLoaded', () => {
       "                                                                                                                                                                                                                            ",
       "                              CCC                                               CCC                                               CCC                                               CCC                                     ",
       "                                                                                                                                                                                                                            ",
-      "                  BMB                   BQB                         BFB                     BSB                       BAB                     BQB                       BSB                     BQB                         ",
-      "                                                              P                                                   P                                               P                                                         ",
-      "                                P                             P                         P                         P                       P                       P                         P                               ",
-      "               T            T   P     T                T  T   P               T      T  P                T    T   P             T   T     P                T    T P               T      T  P             T   T     L       ",
+      "                  BBB BMB BBB           BBB                         BBB                     BBB                       BBB                     BBB                       BBB BSB BBB                                         ",
+      "                                                                                                                                                                                                                            ",
+      "                                                                                                                                                                                                                            ",
+      "               T            T         T                T  T                   T      T                   T    T                 T   T                      T    T                   T      T                T   T     L     ",
       "GGGGGGGGGGGGGGGGGGGG     GGGGGGGGGGGGGGGGGGGG     GGGGGGGGGGGGGGGGGGGG      GGGGGGGGGGGGGGGGGGG      GGGGGGGGGGGGGGGGGGG       GGGGGGGGGGGGGGGGGG      GGGGGGGGGGGGGGGGGGG       GGGGGGGGGGGGGGGGGG     GGGGGGGGGGGGGGGGGGGG",
     ],
     4: [
@@ -283,10 +289,10 @@ document.addEventListener('DOMContentLoaded', () => {
       "                            CCC                                                 CCC                                                         CCC                                                         CCC                                     ",
       "                                        D                                   D                                       D                                       D                                       D                                           ",
       "                      D                                 D                                       D                                       D                                       D                                       D                       ",
-      "                            BMB     D                       BQB         D                 BFB                   D       BSB                           BAB                           BQB         D                 BSB                           ",
-      "                  D                                 D                                       D            P                          D                                       D                                       D       P                   ",
-      "                                                P                                                        P                                                           P                                                      P                   ",
-      "                                                P                                                        P                                                           P                                                      P           L       ",
+      "                            BBB BMB BBB D                       BBB         D                 BBB                   D       BBB                           BBB                           BBB         D                 BBB BSB BBB               ",
+      "                  D                                 D                                       D                                       D                                       D                                       D                           ",
+      "                                                                                                                                                                                                                                                ",
+      "                                                                                                                                                                                                                        L                       ",
       "GGGGGGGGGGGGGGGGGGGGGGGGG    GGGGGGGGGGGGGGGGGGGGGGGGGG     GGGGGGGGGGGGGGGGGGGGGGGGG      GGGGGGGGGGGGGGGGGGGGGGGG      GGGGGGGGGGGGGGGGGGGGGGGG      GGGGGGGGGGGGGGGGGGGGGGGG       GGGGGGGGGGGGGGGGGGGGGGG     GGGGGGGGGGGGGGGGGGGGGGGGGGGGGG",
     ],
     5: [
@@ -297,10 +303,10 @@ document.addEventListener('DOMContentLoaded', () => {
       "                                                                                                                                                                                                                                                                    ",
       "                         CC                                                CC                                                CC                                                          CC                                                                         ",
       "                                                                                                                                                                                                                                                                    ",
-      "                      BMB                             BQB                            BFB                           BSB                      BAB                      BMB                      BFB                 BSB                 BAB                           ",
-      "                                                                                          P                                                                                    P                                                                                    ",
-      "                                        P                                                 P                                       P                                            P                                                 P                                  ",
-      "               E  K           T  D      P           E  E  K                   T   D       P              K  K  T                  P E  D                  K  T                 P    E  K  T                  D  D      T  K      P              X               L   ",
+      "                    BBB BMB BBB                                                           BBB BSB BBB                                                                                                                                                               ",
+      "                                                                                                                                                                                                                                                                    ",
+      "                                                                                                                                                                                                                                                                    ",
+      "               E  K           T  D                  E  E  K                   T   D                     K  K  T                    E  D                  K  T                     E  K  T                  D  D      T  K                   X               L       ",
       "GGGGGGGGGGGGGGGGGGGG     GGGGGGGGGGGGGGGGGGGG     GGGGGGGGGGGGGGGGGGGG      GGGGGGGGGGGGGGGGGGG      GGGGGGGGGGGGGGGGGGG      GGGGGGGGGGGGGGGGGGG       GGGGGGGGGGGGGGGGGG       GGGGGGGGGGGGGGGGGG       GGGGGGGGGGGGGGGGGG      GGGGGGGGGGGGGGGGGGGGGG        GGGG",
     ],
   };
@@ -330,608 +336,78 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   }
 
-  function scanDinoBounds(image) {
-    return null; // Bypass dynamic scanning
-  }
 
-  function scanEnemyBounds(image) {
-    return null; // Bypass dynamic scanning
-  }
+  function drawSprite(ctx, imageGroup, type, rowIdx, colIdx, screenX, screenY, destWidth, destHeight, facingRight, rotation = 0, opacity = 1, isEnemy = false, isSquashed = false) {
+    let img;
+    let sW, sH;
+    let isDino = (type === 'dino');
 
-  // Unified rendering layer aligning sprite center of mass with collision hitbox
-  function drawSprite(ctx, image, type, rowIdx, colIdx, screenX, screenY, destWidth, destHeight, facingRight, rotation = 0, opacity = 1, isEnemy = false, isSquashed = false) {
-    ctx.save();
-    ctx.globalAlpha = opacity;
+    if (isDino) {
+      const dinoTypes = ['raptor', 'ptero', 'rex', 'trike', 'stego'];
+      let dType = dinoTypes[rowIdx] || 'raptor';
+      let frame = colIdx % 2;
+      img = imageGroup[`${dType}_${frame}`];
+    } else {
+      img = imageGroup[type];
+    }
 
-    let frameWidth = image.width / 5;
-    let frameHeight = image.height / 5;
-    
-    // Fallback: ignore bottom 15% labels
-    let sW = frameWidth;
-    let sH = Math.floor(frameHeight * 0.85);
-    let sX = colIdx * frameWidth;
-    let sY = rowIdx * frameHeight;
+    if (!img) return;
+
+    sW = img.width;
+    sH = img.height;
 
     let scale = destHeight / sH;
     let renderW = sW * scale;
-    let renderH = destHeight;
 
-    if (isSquashed) {
-      ctx.translate(screenX + destWidth / 2, screenY + destHeight);
-      ctx.scale(1.3, 0.25);
-      ctx.translate(0, -renderH / 2);
-      if (!facingRight) ctx.scale(-1, 1);
-      ctx.drawImage(image, sX, sY, sW, sH, -renderW / 2, -renderH / 2, renderW, renderH);
-    } else {
-      ctx.translate(screenX + destWidth / 2, screenY + destHeight / 2);
-      if (rotation !== 0) {
-        ctx.rotate(rotation);
-      }
-      if (!facingRight) {
-        ctx.scale(-1, 1);
-      }
-      let drawX = -renderW / 2;
-      let drawY = destHeight / 2 - renderH;
-      ctx.drawImage(image, sX, sY, sW, sH, drawX, drawY, renderW, renderH);
-    }
+    ctx.save();
+    ctx.globalAlpha = opacity;
+    ctx.translate(screenX + destWidth / 2, screenY + destHeight);
+    
+    if (!facingRight) ctx.scale(-1, 1);
+    if (rotation !== 0) ctx.rotate(rotation);
+    if (isSquashed) ctx.scale(1, 0.4);
 
+    ctx.drawImage(
+      img,
+      0, 0, sW, sH,
+      -renderW / 2,
+      -destHeight,
+      renderW,
+      destHeight
+    );
     ctx.restore();
   }
 
-  function drawTileCell(ctx, image, colIdx, rowIdx, screenX, screenY, destWidth, destHeight) {
-    const cellW = image.width / 6;
-    const cellH = image.height / 6;
-    const sH = cellH * 0.85; // Ignore bottom 15% (labels)
-    
+  function drawTileCell(ctx, imageGroup, typeStr, colIdx, screenX, screenY, destWidth, destHeight) {
+    let imgName = '';
+    if (typeStr === 'ground') {
+      imgName = (colIdx % 2 === 0) ? 'grass_left' : 'grass_right';
+    } else if (typeStr === 'brick') {
+      imgName = (colIdx % 2 === 0) ? 'brick1' : 'brick2';
+    } else if (typeStr === 'item_block' || typeStr === 'star_block') {
+      imgName = 'item_block';
+    } else if (typeStr === 'coin') {
+      imgName = 'coin';
+    } else if (typeStr === 'flagpole') {
+      imgName = 'flagpole';
+    } else if (typeStr === 'pipe') {
+      imgName = 'pipe';
+    } else {
+      return;
+    }
+
+    let img = imageGroup[imgName];
+    if (!img) return;
+
     ctx.save();
     ctx.drawImage(
-      image,
-      colIdx * cellW, rowIdx * cellH, cellW, sH,
+      img,
+      0, 0, img.width, img.height,
       screenX, screenY, destWidth, destHeight
     );
     ctx.restore();
   }
 
-
-
-  // Entity Lists
-  const collidables = [];
-  const interactiveBlocks = [];
-  let coinsList = [];
-  let enemies = [];
-  let items = [];
-  let projectiles = [];
-  let particles = [];
-
-  const keys = {
-    left: false,
-    right: false,
-    jump: false,
-    special: false
-  };
-
-  // Dino Sprite sheet slice indices
-  const dinoSliceIndices = {
-    raptor: 0,
-    ptera: 1,
-    trex: 2,
-    trike: 3,
-    stego: 4
-  };
-  const activeDinoIdx = dinoSliceIndices[charType] || 0;
-
-  // ----------------------------------------------------
-  // PLAYER CLASS
-  // ----------------------------------------------------
-  class Player {
-    constructor() {
-      this.x = 80;
-      this.y = 100;
-      this.vx = 0;
-      this.vy = 0;
-      this.width = 60;
-      this.height = 80;
-      
-      this.onGround = false;
-      this.gravity = 0.82;
-      this.jumpPower = -17.5;
-      this.walkSpeed = 5.4;
-      this.stompCombo = 0;
-      
-      this.life = 1;
-      this.hasShield = (charType === 'trex');
-      this.powerup = null;
-      this.powerupDuration = 0;
-      this.powerupMaxDuration = 10000;
-      
-      this.shootCooldown = 0;
-      this.dashCooldown = 0;
-      this.isDashing = false;
-      this.dashTimer = 0;
-      this.jumpHoldTimer = 0;
-      this.isGliding = false;
-      
-      this.facingRight = true;
-      this.walkFrameCycle = 0;
-      
-      this.timeSinceLastOnGround = 0;
-      this.jumpBufferTimer = 0;
-      this.hasJumpedThisLeap = false;
-    }
-
-
-    update(dt) {
-      if (this.shootCooldown > 0) this.shootCooldown -= dt;
-      if (this.dashCooldown > 0) this.dashCooldown -= dt;
-
-      // Update coyote and jump buffer timers
-      if (this.onGround) {
-        this.timeSinceLastOnGround = 0;
-        this.hasJumpedThisLeap = false;
-      } else {
-        this.timeSinceLastOnGround += dt;
-      }
-
-      if (this.jumpBufferTimer > 0) {
-        this.jumpBufferTimer -= dt;
-      }
-
-      // Check jump buffer on landing
-      if (this.onGround && this.jumpBufferTimer > 0) {
-        this.vy = this.jumpPower;
-        this.onGround = false;
-        this.jumpBufferTimer = 0;
-        this.hasJumpedThisLeap = true;
-        sounds.jump();
-        triggerVibrate(20);
-      }
-
-
-      // Shield recharge (T-Rex)
-      if (charType === 'trex' && !this.hasShield) {
-        shieldCooldownTimer += dt;
-        if (shieldCooldownTimer >= 30000) {
-          this.hasShield = true;
-          shieldCooldownTimer = 0;
-          sounds.powerup();
-          createImpactExplosion(this.x + this.width/2, this.y + this.height/2, '#00f0ff');
-        }
-      }
-
-      // Dash (Trike)
-      if (this.isDashing) {
-        this.dashTimer += dt;
-        if (this.dashTimer >= 200) {
-          this.isDashing = false;
-        } else {
-          if (Math.random() < 0.4) {
-            particles.push(new Particle(this.x + Math.random() * this.width, this.y + Math.random() * this.height, '#ffea00'));
-          }
-        }
-      }
-
-      // Powerup Timers
-      if (this.powerup) {
-        this.powerupDuration -= dt;
-        if (this.powerupDuration <= 0) {
-          this.removePowerup();
-        }
-      }
-
-      // Horizontal Walking Input
-      if (!levelComplete && gameState === 'PLAYING') {
-        if (this.isDashing) {
-          this.vx = 16.5 * (this.facingRight ? 1 : -1);
-        } else {
-          if (keys.left) {
-            this.vx = -this.walkSpeed;
-            this.facingRight = false;
-            this.walkFrameCycle += 0.25;
-          } else if (keys.right) {
-            this.vx = this.walkSpeed;
-            this.facingRight = true;
-            this.walkFrameCycle += 0.25;
-          } else {
-            this.vx *= 0.75;
-            if (Math.abs(this.vx) < 0.1) this.vx = 0;
-          }
-        }
-      }
-
-      // Jump & Glide (Ptera)
-      if (keys.jump && !levelComplete && gameState === 'PLAYING') {
-        const canCoyoteJump = !this.onGround && (this.timeSinceLastOnGround < 100) && !this.hasJumpedThisLeap;
-        if (this.onGround || canCoyoteJump) {
-          this.vy = this.jumpPower;
-          this.onGround = false;
-          this.jumpHoldTimer = 0;
-          this.isGliding = false;
-          this.hasJumpedThisLeap = true;
-          this.jumpBufferTimer = 0; // consumed
-          sounds.jump();
-          triggerVibrate(20);
-        } else {
-          this.jumpHoldTimer += dt;
-          if (this.jumpHoldTimer < 180) {
-            this.vy -= 0.27;
-          }
-          if (charType === 'ptera' && this.vy > 0) {
-            this.isGliding = true;
-            this.vy = 1.8; // glide terminal velocity
-            if (Math.random() < 0.15) {
-              particles.push(new Particle(this.x, this.y + this.height/2, '#00f0ff'));
-            }
-          }
-        }
-      } else {
-        this.isGliding = false;
-      }
-
-
-      // Gravity
-      if (!this.onGround && !this.isGliding && !this.isDashing) {
-        this.vy += this.gravity;
-      }
-
-      // Apply positions
-      this.x += this.vx;
-      this.y += this.vy;
-
-      // Screen bounds
-      if (this.x < 10) this.x = 10;
-      if (this.x > (gridCols * BLOCK_SIZE) - this.width - 10) {
-        this.x = (gridCols * BLOCK_SIZE) - this.width - 10;
-      }
-
-      // Power-up modifications
-      if (this.powerup === 'mushroom') {
-        this.width = 84;
-        this.height = 112;
-      } else {
-        this.width = 60;
-        this.height = 80;
-      }
-
-      // Check Special Ability
-      if (keys.special && !levelComplete && gameState === 'PLAYING') {
-        this.useSpecialAbility();
-        keys.special = false;
-      }
-
-      // Star trail
-      if (this.powerup === 'star') {
-        const colors = ['#ff007f', '#00f0ff', '#ffea00', '#39ff14', '#ff6700'];
-        const rColor = colors[Math.floor(Date.now() / 40) % colors.length];
-        if (Math.random() < 0.5) {
-          particles.push(new Particle(this.x + Math.random() * this.width, this.y + Math.random() * this.height, rColor));
-        }
-      }
-
-      // Out of bounds check
-      if (this.y > canvas.height + 50) {
-        triggerDeath();
-      }
-    }
-
-    useSpecialAbility() {
-      if (charType === 'raptor' || this.powerup === 'fireflower') {
-        if (this.shootCooldown <= 0) {
-          const dir = this.facingRight ? 1 : -1;
-          projectiles.push(new Projectile(this.x + (this.facingRight ? this.width : -16), this.y + this.height/3, dir));
-          sounds.shoot();
-          this.shootCooldown = 600;
-        }
-      }
-      else if (charType === 'trike') {
-        if (this.dashCooldown <= 0) {
-          this.isDashing = true;
-          this.dashTimer = 0;
-          this.dashCooldown = 3000;
-          sounds.dash();
-          triggerVibrate([40,20,40]);
-          createImpactExplosion(this.x + (this.facingRight ? this.width : 0), this.y + this.height/2, '#ffea00');
-        }
-      }
-    }
-
-    applyPowerup(type) {
-      if (type === 'mushroom') {
-        sounds.powerup();
-        this.powerup = 'mushroom';
-        this.life = 2;
-        this.powerupDuration = this.powerupMaxDuration;
-        createImpactExplosion(this.x + this.width/2, this.y + this.height/2, '#ff0055');
-      }
-      else if (type === 'fireflower') {
-        sounds.powerup();
-        this.powerup = 'fireflower';
-        this.powerupDuration = this.powerupMaxDuration;
-        createImpactExplosion(this.x + this.width/2, this.y + this.height/2, '#ffaa00');
-      }
-      else if (type === 'star') {
-        sounds.powerup();
-        this.powerup = 'star';
-        this.powerupDuration = 8000;
-        createImpactExplosion(this.x + this.width/2, this.y + this.height/2, '#00f0ff');
-      }
-      else if (type === 'magnet') {
-        sounds.powerup();
-        this.powerup = 'magnet';
-        this.powerupDuration = 12000;
-        createImpactExplosion(this.x + this.width/2, this.y + this.height/2, '#00f0ff');
-      }
-    }
-
-    removePowerup() {
-      sounds.powerdown();
-      this.powerup = null;
-      this.life = 1;
-    }
-
-    takeDamage() {
-      if (this.powerup === 'star' || this.isDashing || levelComplete) return;
-      if (this.hasShield) {
-        this.hasShield = false;
-        shieldCooldownTimer = 0;
-        sounds.hit();
-        triggerVibrate([100,50,100]);
-        createImpactExplosion(this.x + this.width/2, this.y + this.height/2, '#00f0ff');
-        return;
-      }
-      if (this.life > 1) {
-        this.removePowerup();
-        sounds.hit();
-        triggerVibrate([80,80]);
-        return;
-      }
-      triggerDeath();
-    }
-
-    draw() {
-      // Calculate walking frame cycle (0 to 4)
-      let animFrame = 0;
-      if (Math.abs(this.vx) > 0.1 && this.onGround) {
-        animFrame = Math.floor(this.walkFrameCycle) % 5;
-      }
-
-      // Add walk cycle frame tilt
-      let walkRotation = 0;
-      if (Math.abs(this.vx) > 0.1 && this.onGround) {
-        walkRotation = Math.sin(this.walkFrameCycle) * 0.08;
-      }
-
-      // Calculate screen coordinates using normalization layer
-      const screenPos = worldToScreen(this.x, this.y);
-
-      ctx.save();
-      // Star rainbow color overlay filter
-      if (this.powerup === 'star') {
-        ctx.shadowBlur = 15;
-        const colors = ['#ff007f', '#00f0ff', '#ffea00', '#39ff14', '#ff6700'];
-        ctx.shadowColor = colors[Math.floor(Date.now() / 80) % colors.length];
-      } else if (this.powerup === 'fireflower') {
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = '#ff5500';
-      }
-
-      // Draw the player dino using drawSprite, which handles scale, horizontal centering, bottom-alignment, and flipping!
-      drawSprite(
-        ctx,
-        assets.dinos,
-        'dino',
-        activeDinoIdx,
-        animFrame,
-        screenPos.x,
-        screenPos.y,
-        this.width,
-        this.height,
-        this.facingRight,
-        walkRotation
-      );
-      ctx.restore();
-
-      // Draw active shield bubble (centered on physical hitbox)
-      if (this.hasShield) {
-        ctx.save();
-        ctx.strokeStyle = '#00f0ff';
-        ctx.lineWidth = 3;
-        ctx.shadowBlur = 15;
-        ctx.shadowColor = '#00f0ff';
-        ctx.beginPath();
-        const center = worldToScreen(this.x + this.width / 2, this.y + this.height / 2);
-        ctx.arc(center.x, center.y, Math.max(this.width, this.height) * 0.7, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.restore();
-      }
-
-      // Draw magnet ring (centered on physical hitbox)
-      if (this.powerup === 'magnet' || charType === 'stego') {
-        ctx.save();
-        ctx.strokeStyle = 'rgba(255, 234, 0, 0.2)';
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        const center = worldToScreen(this.x + this.width / 2, this.y + this.height / 2);
-        ctx.arc(center.x, center.y, (this.powerup === 'magnet' ? 140 : 60), 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.restore();
-      }
-    }
-
-  }
-
-  let player = new Player();
-
-  function getGroundSliceIdx(gridX, gridY) {
-    const row = activeGrid[gridY];
-    if (!row) return 1;
-    const leftIsG = (gridX > 0) && (row[gridX - 1] === 'G');
-    const rightIsG = (gridX < row.length - 1) && (row[gridX + 1] === 'G');
-    
-    if (leftIsG && rightIsG) return 1;
-    if (!leftIsG && rightIsG) return 0;
-    if (leftIsG && !rightIsG) return 2;
-    return 1;
-  }
-
-  function drawBrickBlock(ctx, screenX, screenY, width, height, theme) {
-    ctx.save();
-    let colorMain = '#b35936';
-    let colorDark = '#732c10';
-    let colorLight = '#d98c6c';
-    
-    if (theme === 2) {
-      colorMain = '#cfa053';
-      colorDark = '#8a6224';
-      colorLight = '#e6be83';
-    } else if (theme === 4) {
-      colorMain = '#57576b';
-      colorDark = '#2c2c3b';
-      colorLight = '#82829c';
-    }
-    
-    ctx.fillStyle = colorDark;
-    ctx.fillRect(screenX, screenY, width, height);
-    
-    ctx.fillStyle = colorMain;
-    ctx.fillRect(screenX + 3, screenY + 3, width - 6, height - 6);
-    
-    ctx.fillStyle = colorLight;
-    ctx.fillRect(screenX + 3, screenY + 3, width - 6, 3);
-    ctx.fillRect(screenX + 3, screenY + 3, 3, height - 6);
-    
-    ctx.strokeStyle = colorDark;
-    ctx.lineWidth = 3;
-    
-    ctx.beginPath();
-    ctx.moveTo(screenX + 3, screenY + height / 3);
-    ctx.lineTo(screenX + width - 3, screenY + height / 3);
-    ctx.moveTo(screenX + 3, screenY + (2 * height) / 3);
-    ctx.lineTo(screenX + width - 3, screenY + (2 * height) / 3);
-    ctx.stroke();
-    
-    ctx.beginPath();
-    ctx.moveTo(screenX + width / 2, screenY + 3);
-    ctx.lineTo(screenX + width / 2, screenY + height / 3);
-    
-    ctx.moveTo(screenX + width / 3, screenY + height / 3);
-    ctx.lineTo(screenX + width / 3, screenY + (2 * height) / 3);
-    ctx.moveTo(screenX + (2 * width) / 3, screenY + height / 3);
-    ctx.lineTo(screenX + (2 * width) / 3, screenY + (2 * height) / 3);
-    
-    ctx.moveTo(screenX + width / 2, screenY + (2 * height) / 3);
-    ctx.lineTo(screenX + width / 2, screenY + height - 3);
-    ctx.stroke();
-    
-    ctx.fillStyle = 'rgba(255,255,255,0.15)';
-    ctx.fillRect(screenX + 6, screenY + 6, 8, 4);
-    ctx.fillRect(screenX + width/2 + 6, screenY + 6, 8, 4);
-    
-    ctx.strokeStyle = '#2d1406';
-    ctx.lineWidth = 3;
-    ctx.strokeRect(screenX, screenY, width, height);
-    ctx.restore();
-  }
-
-  function drawQuestionBlock(ctx, screenX, screenY, width, height, hit, theme) {
-    ctx.save();
-    if (hit) {
-      let colorMain = '#8c7d70';
-      let colorDark = '#594d43';
-      let colorLight = '#bfaea1';
-      
-      if (theme === 2) {
-        colorMain = '#a8947d';
-        colorDark = '#6e5e4d';
-        colorLight = '#d4c0ab';
-      } else if (theme === 4) {
-        colorMain = '#56505c';
-        colorDark = '#332f38';
-        colorLight = '#7b7482';
-      }
-      
-      ctx.fillStyle = colorDark;
-      ctx.fillRect(screenX, screenY, width, height);
-      ctx.fillStyle = colorMain;
-      ctx.fillRect(screenX + 3, screenY + 3, width - 6, height - 6);
-      
-      ctx.fillStyle = colorLight;
-      ctx.fillRect(screenX + 3, screenY + 3, width - 6, 3);
-      ctx.fillRect(screenX + 3, screenY + 3, 3, height - 6);
-      
-      ctx.fillStyle = colorDark;
-      ctx.beginPath();
-      ctx.arc(screenX + 10, screenY + 10, 3, 0, Math.PI * 2);
-      ctx.arc(screenX + width - 10, screenY + 10, 3, 0, Math.PI * 2);
-      ctx.arc(screenX + 10, screenY + height - 10, 3, 0, Math.PI * 2);
-      ctx.arc(screenX + width - 10, screenY + height - 10, 3, 0, Math.PI * 2);
-      ctx.fill();
-      
-      ctx.strokeStyle = '#2d1406';
-      ctx.lineWidth = 3;
-      ctx.strokeRect(screenX, screenY, width, height);
-    } else {
-      let colorMain = '#fcc21b';
-      let colorDark = '#b38200';
-      let colorLight = '#ffea6c';
-      let fontColor = '#805900';
-      
-      if (theme === 2) {
-        colorMain = '#e69822';
-        colorDark = '#9c610b';
-        colorLight = '#ffc875';
-        fontColor = '#663d00';
-      } else if (theme === 4) {
-        colorMain = '#d47b1e';
-        colorDark = '#8c4906';
-        colorLight = '#ffa954';
-        fontColor = '#5c2d00';
-      }
-      
-      ctx.shadowBlur = 12;
-      ctx.shadowColor = colorMain;
-      
-      ctx.fillStyle = colorDark;
-      ctx.fillRect(screenX, screenY, width, height);
-      ctx.fillStyle = colorMain;
-      ctx.fillRect(screenX + 3, screenY + 3, width - 6, height - 6);
-      
-      ctx.fillStyle = colorLight;
-      ctx.fillRect(screenX + 3, screenY + 3, width - 6, 4);
-      ctx.fillRect(screenX + 3, screenY + 3, 4, height - 6);
-      
-      ctx.shadowBlur = 0;
-      
-      ctx.fillStyle = colorDark;
-      ctx.beginPath();
-      ctx.arc(screenX + 10, screenY + 10, 3.5, 0, Math.PI * 2);
-      ctx.arc(screenX + width - 10, screenY + 10, 3.5, 0, Math.PI * 2);
-      ctx.arc(screenX + 10, screenY + height - 10, 3.5, 0, Math.PI * 2);
-      ctx.arc(screenX + width - 10, screenY + height - 10, 3.5, 0, Math.PI * 2);
-      ctx.fill();
-      
-      ctx.font = `bold ${Math.floor(height * 0.55)}px var(--font-display)`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      
-      ctx.fillStyle = colorDark;
-      ctx.fillText('?', screenX + width / 2 + 2, screenY + height / 2 + 3);
-      
-      ctx.fillStyle = '#ffffff';
-      ctx.strokeStyle = fontColor;
-      ctx.lineWidth = 4.5;
-      ctx.strokeText('?', screenX + width / 2, screenY + height / 2);
-      ctx.fillText('?', screenX + width / 2, screenY + height / 2);
-      
-      ctx.strokeStyle = '#2d1406';
-      ctx.lineWidth = 3;
-      ctx.strokeRect(screenX, screenY, width, height);
-    }
-    ctx.restore();
-  }
-
-  // ----------------------------------------------------
-  // BLOCKS CLASS
-  // ----------------------------------------------------
   class Block {
     constructor(gridX, gridY, type, itemType = 'coin') {
       this.gridX = gridX;
@@ -982,7 +458,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (this.type === 'ground') {
           drawColIdx = getGroundSliceIdx(this.gridX, this.gridY);
         }
-        drawTileCell(ctx, assets.tiles, drawColIdx, tileRow, screen.x, screen.y, this.width, this.height);
+        drawTileCell(ctx, assets.tiles, this.type, drawColIdx, screen.x, screen.y, this.width, this.height);
       }
     }
   }
@@ -1013,7 +489,7 @@ document.addEventListener('DOMContentLoaded', () => {
       else if (selectedLevelNum === 3 || selectedLevelNum === 5) tileRow = 4;
 
       const screen = worldToScreen(this.x, this.y);
-      drawTileCell(ctx, assets.tiles, 3, tileRow, screen.x, screen.y, this.width, this.height);
+      drawTileCell(ctx, assets.tiles, 'coin', 0, screen.x, screen.y, this.width, this.height);
     }
   }
 
@@ -1038,7 +514,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       for (let i = 0; i < 6; i++) {
         const screen = worldToScreen(this.x, this.y + (i * BLOCK_SIZE));
-        drawTileCell(ctx, assets.tiles, 5, tileRow, screen.x, screen.y, BLOCK_SIZE, BLOCK_SIZE);
+        drawTileCell(ctx, assets.tiles, 'flagpole', 0, screen.x, screen.y, BLOCK_SIZE, BLOCK_SIZE);
       }
     }
   }
@@ -1243,7 +719,7 @@ document.addEventListener('DOMContentLoaded', () => {
       drawSprite(
         ctx,
         assets.enemies,
-        'enemy',
+        this.type,
         animFrame,
         this.sliceIdx,
         screenPos.x,
@@ -1895,6 +1371,15 @@ document.addEventListener('DOMContentLoaded', () => {
   // ----------------------------------------------------
   function triggerVictory() {
     localStorage.setItem(levelDeathsKey, '0');
+    
+    // Unlock next level
+    if (selectedLevelNum < 5) {
+      let maxLevel = parseInt(localStorage.getItem('alphadino_max_level')) || 1;
+      if (selectedLevelNum + 1 > maxLevel) {
+        localStorage.setItem('alphadino_max_level', selectedLevelNum + 1);
+      }
+    }
+
     levelComplete = true;
     gameState = 'PAUSED';
     sounds.victory();

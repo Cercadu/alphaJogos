@@ -39,27 +39,58 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // 3b. Load last selected level
-  const savedLevel = localStorage.getItem('alphadino_selected_level');
-  if (savedLevel) {
-    levelCards.forEach(card => {
-      card.classList.remove('selected');
-      if (card.dataset.level === savedLevel) {
-        card.classList.add('selected');
-        selectedLevel = savedLevel;
-        // Scroll to selected card
-        card.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-      }
-    });
+  const levelNames = {
+    "1": "1 - Vale dos Toons",
+    "2": "2 - Canyon do Coiote",
+    "3": "3 - Mina do Gaguinho",
+    "4": "4 - Cidade Maluca",
+    "5": "5 - Vulcão do Taz"
+  };
+
+  const mapNodes = document.querySelectorAll('.map-node');
+  const lblSelLevel = document.getElementById('lbl-sel-level');
+  
+  // 3b. Load max unlocked level
+  let maxUnlocked = parseInt(localStorage.getItem('alphadino_max_level')) || 1;
+  
+  // Setup nodes based on unlocked status
+  mapNodes.forEach(node => {
+    let lvl = parseInt(node.dataset.level);
+    if (lvl <= maxUnlocked) {
+      node.classList.remove('locked');
+    } else {
+      node.classList.add('locked');
+    }
+  });
+
+  // Load last selected level, ensure it's not locked
+  let savedLevel = localStorage.getItem('alphadino_selected_level');
+  if (savedLevel && parseInt(savedLevel) <= maxUnlocked) {
+    selectedLevel = savedLevel;
+  } else {
+    selectedLevel = "1";
+    localStorage.setItem('alphadino_selected_level', selectedLevel);
   }
 
-  // 3c. Handle level selection
-  levelCards.forEach(card => {
-    card.addEventListener('click', () => {
-      levelCards.forEach(c => c.classList.remove('selected'));
-      card.classList.add('selected');
-      selectedLevel = card.dataset.level;
+  // Update UI for selected level
+  mapNodes.forEach(node => {
+    node.classList.remove('selected');
+    if (node.dataset.level === selectedLevel) {
+      node.classList.add('selected');
+      lblSelLevel.textContent = levelNames[selectedLevel];
+    }
+  });
+
+  // 3c. Handle map node selection
+  mapNodes.forEach(node => {
+    node.addEventListener('click', () => {
+      if (node.classList.contains('locked')) return;
+      
+      mapNodes.forEach(c => c.classList.remove('selected'));
+      node.classList.add('selected');
+      selectedLevel = node.dataset.level;
       localStorage.setItem('alphadino_selected_level', selectedLevel);
+      lblSelLevel.textContent = levelNames[selectedLevel];
     });
   });
 

@@ -174,46 +174,21 @@
           </div>
         </div>
  
-        <!-- Level Selection Carousel -->
-        <div class="character-select-container" style="margin-top: 10px;">
-          <label class="setup-label">Escolha a Fase (Fases 1-5)</label>
-          <div class="character-carousel" id="level-carousel">
-            
-            <!-- Level 1 -->
-            <div class="character-card selected" data-level="1" style="--selected-color: var(--toon-green);">
-              <div class="character-name">Fase 1</div>
-              <span class="character-power-badge" style="--selected-color: var(--toon-green)">Vale dos Toons</span>
-              <div class="character-power-desc">Dificuldade: Fácil.<br>Cenário clássico de colinas pintadas com Goombas engraçados.</div>
-            </div>
- 
-            <!-- Level 2 -->
-            <div class="character-card" data-level="2" style="--selected-color: var(--toon-yellow);">
-              <div class="character-name">Fase 2</div>
-              <span class="character-power-badge" style="--selected-color: var(--toon-yellow)">Canyon do Coiote</span>
-              <div class="character-power-desc">Dificuldade: Média.<br>Deserto clássico de cânion com cactos, dinamites e Koopas.</div>
-            </div>
- 
-            <!-- Level 3 -->
-            <div class="character-card" data-level="3" style="--selected-color: var(--toon-purple);">
-              <div class="character-name">Fase 3</div>
-              <span class="character-power-badge" style="--selected-color: var(--toon-purple)">Mina do Gaguinho</span>
-              <div class="character-power-desc">Dificuldade: Média.<br>Mina de carvão com cristais cintilantes e Besouros blindados.</div>
-            </div>
- 
-            <!-- Level 4 -->
-            <div class="character-card" data-level="4" style="--selected-color: var(--toon-blue);">
-              <div class="character-name">Fase 4</div>
-              <span class="character-power-badge" style="--selected-color: var(--toon-blue)">Cidade Maluca</span>
-              <div class="character-power-desc">Dificuldade: Difícil.<br>Prédios malucos com chaminés curvas e Drones atrapalhados.</div>
-            </div>
- 
-            <!-- Level 5 -->
-            <div class="character-card" data-level="5" style="--selected-color: var(--toon-red);">
-              <div class="character-name">Fase 5</div>
-              <span class="character-power-badge" style="--selected-color: var(--toon-red)">Vulcão do Taz</span>
-              <div class="character-power-desc">Dificuldade: Chefe.<br>Castelo de lava fumegante, pontes de madeira e Bowser Boss cartoon.</div>
-            </div>
- 
+        <!-- World Map Level Selection -->
+        <div class="world-map-container" style="margin-top: 15px;">
+          <label class="setup-label">Mapa das Fases</label>
+          <div class="world-map" id="world-map">
+            <svg class="map-path" viewBox="0 0 100 100" preserveAspectRatio="none">
+              <path d="M 10,50 Q 30,20 50,50 T 90,50" stroke="var(--toon-green)" stroke-width="2" stroke-dasharray="5,5" fill="none" opacity="0.5" />
+            </svg>
+            <div class="map-node selected" data-level="1" style="left: 10%; top: 50%;">1</div>
+            <div class="map-node locked" data-level="2" style="left: 30%; top: 20%;">2</div>
+            <div class="map-node locked" data-level="3" style="left: 50%; top: 50%;">3</div>
+            <div class="map-node locked" data-level="4" style="left: 70%; top: 80%;">4</div>
+            <div class="map-node locked" data-level="5" style="left: 90%; top: 50%;">5</div>
+          </div>
+          <div class="selected-level-info" id="selected-level-info" style="text-align: center; margin-top: 10px; font-weight: bold;">
+            Fase: <span id="lbl-sel-level" class="neon-text-green">1 - Vale dos Toons</span>
           </div>
         </div>
  
