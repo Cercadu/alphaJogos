@@ -1,12 +1,12 @@
-const CACHE_NAME = 'alphadino-cache-v4';
+const CACHE_NAME = 'alphadino-cache-v5';
 const ASSETS = [
   './',
   './index.html',
   './style.css',
   './app.js',
-  './game/index.html',
-  './game/game.css',
-  './game/game.js',
+  './game.html',
+  './game.css',
+  './game.js',
   './manifest.json',
   './icon-192.png',
   './icon-512.png'

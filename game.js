@@ -149,11 +149,11 @@ const assets = {
   };
   
   const levelBgs = {
-    1: '../assets/backgrounds/bg_forest.png',
-    2: '../assets/backgrounds/bg_desert.png',
-    3: '../assets/backgrounds/bg_cave.png',
-    4: '../assets/backgrounds/bg_forest.png',
-    5: '../assets/backgrounds/bg_lava.png'
+    1: 'assets/backgrounds/bg_forest.png',
+    2: 'assets/backgrounds/bg_desert.png',
+    3: 'assets/backgrounds/bg_cave.png',
+    4: 'assets/backgrounds/bg_forest.png',
+    5: 'assets/backgrounds/bg_lava.png'
   };
 
   const dinoNames = ['raptor_0', 'raptor_1', 'ptero_0', 'ptero_1', 'rex_0', 'rex_1', 'trike_0', 'trike_1', 'stego_0', 'stego_1'];
@@ -180,21 +180,21 @@ const assets = {
     assets.dinos[name] = new Image();
     assets.dinos[name].onload = checkAssetsLoaded;
     assets.dinos[name].onerror = checkAssetsLoaded;
-    assets.dinos[name].src = `../assets/characters/sprites/${name}.png${CACHE_BUST}`;
+    assets.dinos[name].src = `assets/characters/sprites/${name}.png${CACHE_BUST}`;
   });
 
   enemyNames.forEach(name => {
     assets.enemies[name] = new Image();
     assets.enemies[name].onload = checkAssetsLoaded;
     assets.enemies[name].onerror = checkAssetsLoaded;
-    assets.enemies[name].src = `../assets/enemies/sprites/${name}.png${CACHE_BUST}`;
+    assets.enemies[name].src = `assets/enemies/sprites/${name}.png${CACHE_BUST}`;
   });
 
   tileNames.forEach(name => {
     assets.tiles[name] = new Image();
     assets.tiles[name].onload = checkAssetsLoaded;
     assets.tiles[name].onerror = checkAssetsLoaded;
-    assets.tiles[name].src = `../assets/tiles/sprites/${name}.png${CACHE_BUST}`;
+    assets.tiles[name].src = `assets/tiles/sprites/${name}.png${CACHE_BUST}`;
   });
 
   // ----------------------------------------------------

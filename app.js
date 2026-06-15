@@ -198,6 +198,6 @@ document.addEventListener('DOMContentLoaded', () => {
     sessionStorage.setItem('alphadino_active_level', selectedLevel);
     
     // Navigate to game
-    window.location.href = 'game/index.html';
+    window.location.href = 'game.html';
   });
 });
