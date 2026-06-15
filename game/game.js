@@ -355,7 +355,7 @@ const assets = {
       img = imageGroup[type];
     }
 
-    if (!img) return;
+    if (!img || !img.complete || img.naturalWidth === 0) return;
 
     sW = img.width;
     sH = img.height;
@@ -401,7 +401,7 @@ const assets = {
     }
 
     let img = imageGroup[imgName];
-    if (!img) return;
+    if (!img || !img.complete || img.naturalWidth === 0) return;
 
     ctx.save();
     ctx.drawImage(
@@ -1578,9 +1578,11 @@ const assets = {
     }
 
     // 1. Draw seamless looping parallax backgrounds
-    let bgOffset = (-cameraX * 0.25) % canvas.width;
-    ctx.drawImage(assets.bg, bgOffset, 0, canvas.width, canvas.height);
-    ctx.drawImage(assets.bg, bgOffset + canvas.width, 0, canvas.width, canvas.height);
+    if (assets.bg && assets.bg.complete && assets.bg.naturalWidth > 0) {
+      let bgOffset = (-cameraX * 0.25) % canvas.width;
+      ctx.drawImage(assets.bg, bgOffset, 0, canvas.width, canvas.height);
+      ctx.drawImage(assets.bg, bgOffset + canvas.width, 0, canvas.width, canvas.height);
+    }
 
     // Contrast tint overlay: washes out the background slightly so characters stand out!
     let overlayColor = 'rgba(255, 255, 255, 0.4)'; // Default Forest/Skyline (white fog)
