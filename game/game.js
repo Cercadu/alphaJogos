@@ -171,23 +171,27 @@ const assets = {
   }
 
   assets.bg.onload = checkAssetsLoaded;
+  assets.bg.onerror = checkAssetsLoaded;
   assets.bg.src = levelBgs[selectedLevelNum] || levelBgs[1];
 
   dinoNames.forEach(name => {
     assets.dinos[name] = new Image();
     assets.dinos[name].onload = checkAssetsLoaded;
+    assets.dinos[name].onerror = checkAssetsLoaded;
     assets.dinos[name].src = `../assets/characters/sprites/${name}.png`;
   });
 
   enemyNames.forEach(name => {
     assets.enemies[name] = new Image();
     assets.enemies[name].onload = checkAssetsLoaded;
+    assets.enemies[name].onerror = checkAssetsLoaded;
     assets.enemies[name].src = `../assets/enemies/sprites/${name}.png`;
   });
 
   tileNames.forEach(name => {
     assets.tiles[name] = new Image();
     assets.tiles[name].onload = checkAssetsLoaded;
+    assets.tiles[name].onerror = checkAssetsLoaded;
     assets.tiles[name].src = `../assets/tiles/sprites/${name}.png`;
   });
 
