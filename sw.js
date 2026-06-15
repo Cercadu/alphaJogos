@@ -1,4 +1,4 @@
-const CACHE_NAME = 'alphadino-cache-v2';
+const CACHE_NAME = 'alphadino-cache-v4';
 const ASSETS = [
   './',
   './index.html',
